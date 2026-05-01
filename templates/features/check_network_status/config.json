@@ -1,0 +1,116 @@
+{
+  "name": "check_network_status",
+  "displayName": "Network Status Check",
+  "description": "Monitor network connectivity, health, and synchronization status across all supported EVM networks with comprehensive diagnostics",
+  "version": "1.0.0",
+  "category": "network",
+  "serverType": "evm",
+  "dependencies": {
+    "ethers": "^6.0.0"
+  },
+  "files": [
+    {
+      "source": "action.ts",
+      "destination": "src/actions/checkNetworkStatus.ts"
+    },
+    {
+      "source": "test.ts",
+      "destination": "src/tests/checkNetworkStatus.test.ts"
+    },
+    {
+      "source": "README.md",
+      "destination": "docs/features/check_network_status.md"
+    }
+  ],
+  "integration": {
+    "actions": ["checkNetworkStatusAction"],
+    "imports": [
+      "import { checkNetworkStatusAction } from './actions/checkNetworkStatus.js';"
+    ]
+  },
+  "environment": {
+    "required": [
+      "RPC_URL"
+    ],
+    "optional": [
+      "NETWORK_TIMEOUT",
+      "HEALTH_CHECK_INTERVAL"
+    ]
+  },
+  "features": {
+    "connectivityCheck": true,
+    "chainIdValidation": true,
+    "blockHeightMonitoring": true,
+    "responseTimeMetrics": true,
+    "healthAssessment": true,
+    "syncStatusCheck": true,
+    "peerCountMonitoring": true,
+    "gasTracking": true,
+    "networkCongestionAnalysis": true,
+    "multiNetworkSupport": true
+  },
+  "parameters": {
+    "network": {
+      "type": "string",
+      "optional": true,
+      "description": "Specific network to check (defaults to current network)"
+    },
+    "timeout": {
+      "type": "number",
+      "range": [1000, 30000],
+      "default": 10000,
+      "description": "Request timeout in milliseconds"
+    },
+    "includeMetrics": {
+      "type": "boolean",
+      "default": true,
+      "description": "Include detailed performance metrics"
+    },
+    "checkPeers": {
+      "type": "boolean",
+      "default": false,
+      "description": "Check peer count and network connectivity"
+    },
+    "validateChainId": {
+      "type": "boolean",
+      "default": true,
+      "description": "Validate chain ID matches configuration"
+    },
+    "checkSync": {
+      "type": "boolean",
+      "default": true,
+      "description": "Check if node is synchronized with network"
+    }
+  },
+  "networkSupport": {
+    "sepolia": {
+      "testnet": true,
+      "devnet": false,
+      "mainnet": false,
+      "features": ["eip1559", "testnet"]
+    },
+    "ethereum": {
+      "testnet": true,
+      "mainnet": true,
+      "features": ["eip1559", "mevProtection"]
+    },
+    "polygon": {
+      "testnet": true,
+      "mainnet": true,
+      "features": ["eip1559", "lowCost", "layer2"]
+    },
+    "arbitrum": {
+      "testnet": true,
+      "mainnet": true,
+      "features": ["layer2", "lowCost"]
+    }
+  },
+  "examples": [
+    "Check ETH testnet status",
+    "Is the network healthy and synchronized?",
+    "Get network performance metrics",
+    "Check if Ethereum mainnet is accessible",
+    "Monitor network connectivity with detailed diagnostics",
+    "Validate chain ID and sync status"
+  ]
+}

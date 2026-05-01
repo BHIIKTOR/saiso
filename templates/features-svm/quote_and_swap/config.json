@@ -1,0 +1,43 @@
+{
+  "name": "quote_and_swap",
+  "displayName": "Quote and Swap (SVM Adapter)",
+  "description": "Quote and execute swaps with deterministic safety envelope (SVM-specific adapter)",
+  "version": "1.0.0",
+  "category": "execution",
+  "serverType": "svm",
+  "dependencies": {},
+  "files": [
+    {
+      "source": "action.ts",
+      "destination": "src/actions/quoteAndSwap.ts"
+    },
+    {
+      "source": "test.ts",
+      "destination": "src/tests/quoteAndSwap.test.ts"
+    },
+    {
+      "source": "README.md",
+      "destination": "docs/features/quote_and_swap.md"
+    }
+  ],
+  "integration": {
+    "actions": ["quoteAndSwapAction"],
+    "imports": [
+      "import { quoteAndSwapAction } from './actions/quoteAndSwap.js';"
+    ]
+  },
+  "environment": {
+    "required": [],
+    "optional": [
+      "WALLET_ADDRESS",
+      "JUPITER_QUOTE_API_BASE"
+    ]
+  },
+  "features": {
+    "serverSpecific": true,
+    "adapter": "svm"
+  },
+  "examples": [
+    "Run quote_and_swap with SVM adapter"
+  ]
+}

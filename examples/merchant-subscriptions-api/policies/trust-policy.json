@@ -1,0 +1,5 @@
+{
+  "enabled": true,
+  "minTrustScore": 0.72,
+  "routingProfile": "trust-first"
+}

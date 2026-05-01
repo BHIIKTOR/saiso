@@ -1,0 +1,45 @@
+{
+  "name": "tx_lifecycle_manager",
+  "displayName": "Transaction Lifecycle Manager",
+  "description": "Track, classify, and manage transaction lifecycle states",
+  "version": "1.0.0",
+  "category": "execution",
+  "dependencies": {},
+  "files": [
+    {
+      "source": "action.ts",
+      "destination": "src/actions/txLifecycleManager.ts"
+    },
+    {
+      "source": "test.ts",
+      "destination": "src/tests/txLifecycleManager.test.ts"
+    },
+    {
+      "source": "README.md",
+      "destination": "docs/features/tx_lifecycle_manager.md"
+    }
+  ],
+  "integration": {
+    "actions": ["txLifecycleManagerAction"],
+    "imports": [
+      "import { txLifecycleManagerAction } from './actions/txLifecycleManager.js';"
+    ]
+  },
+  "environment": {
+    "required": [
+      "RPC_URL"
+    ],
+    "optional": [
+      "TX_FINALITY_CONFIRMATIONS"
+    ]
+  },
+  "features": {
+    "workflowParity": true,
+    "chainAgnostic": true,
+    "productionScaffold": true
+  },
+  "examples": [
+    "Run tx_lifecycle_manager in dry-run mode",
+    "Execute tx_lifecycle_manager for EVM and SVM"
+  ]
+}

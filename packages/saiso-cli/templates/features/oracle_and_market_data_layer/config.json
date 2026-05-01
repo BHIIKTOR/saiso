@@ -1,0 +1,44 @@
+{
+  "name": "oracle_and_market_data_layer",
+  "displayName": "Oracle and Market Data Layer",
+  "description": "Normalize market data and enforce freshness guarantees",
+  "version": "1.0.0",
+  "category": "data",
+  "dependencies": {},
+  "files": [
+    {
+      "source": "action.ts",
+      "destination": "src/actions/oracleMarketDataLayer.ts"
+    },
+    {
+      "source": "test.ts",
+      "destination": "src/tests/oracleMarketDataLayer.test.ts"
+    },
+    {
+      "source": "README.md",
+      "destination": "docs/features/oracle_and_market_data_layer.md"
+    }
+  ],
+  "integration": {
+    "actions": ["oracleMarketDataLayerAction"],
+    "imports": [
+      "import { oracleMarketDataLayerAction } from './actions/oracleMarketDataLayer.js';"
+    ]
+  },
+  "environment": {
+    "required": [],
+    "optional": [
+      "PRIVY_APP_ID",
+      "PRIVY_APP_SECRET"
+    ]
+  },
+  "features": {
+    "workflowParity": true,
+    "chainAgnostic": true,
+    "productionScaffold": true
+  },
+  "examples": [
+    "Run oracle_and_market_data_layer in dry-run mode",
+    "Execute oracle_and_market_data_layer for EVM and SVM"
+  ]
+}

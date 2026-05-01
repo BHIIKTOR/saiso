@@ -1,0 +1,5 @@
+{
+  "enabled": true,
+  "minTrustScore": 0.7,
+  "routingProfile": "balanced"
+}

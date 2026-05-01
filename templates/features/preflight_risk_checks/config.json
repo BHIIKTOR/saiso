@@ -1,0 +1,46 @@
+{
+  "name": "preflight_risk_checks",
+  "displayName": "Preflight Risk Checks",
+  "description": "Run simulation and policy checks before execution",
+  "version": "1.0.0",
+  "category": "security",
+  "dependencies": {},
+  "files": [
+    {
+      "source": "action.ts",
+      "destination": "src/actions/preflightRiskChecks.ts"
+    },
+    {
+      "source": "test.ts",
+      "destination": "src/tests/preflightRiskChecks.test.ts"
+    },
+    {
+      "source": "README.md",
+      "destination": "docs/features/preflight_risk_checks.md"
+    }
+  ],
+  "integration": {
+    "actions": ["preflightRiskChecksAction"],
+    "imports": [
+      "import { preflightRiskChecksAction } from './actions/preflightRiskChecks.js';"
+    ]
+  },
+  "environment": {
+    "required": [],
+    "optional": [
+      "PAYMENT_MAX_PER_REQUEST_USD",
+      "TRUST_MIN_SCORE",
+      "PAYMENT_ALLOWED_RECIPIENTS",
+      "PAYMENT_BLOCKED_RECIPIENTS"
+    ]
+  },
+  "features": {
+    "workflowParity": true,
+    "chainAgnostic": true,
+    "productionScaffold": true
+  },
+  "examples": [
+    "Run preflight_risk_checks in dry-run mode",
+    "Execute preflight_risk_checks for EVM and SVM"
+  ]
+}

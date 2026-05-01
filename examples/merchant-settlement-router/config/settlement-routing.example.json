@@ -1,0 +1,22 @@
+{
+  "routing": {
+    "profile": "balanced",
+    "preferredProtocol": "auto",
+    "maxPerRequestUsd": 1,
+    "dailyBudgetUsd": 40
+  },
+  "recipients": {
+    "x402Preferred": [
+      "merchant-x402.example"
+    ],
+    "mppPreferred": [
+      "tempo.xyz"
+    ],
+    "blocked": []
+  },
+  "trustFloors": {
+    "read": 0.45,
+    "write": 0.7,
+    "high-risk": 0.82
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "name": "tx_lifecycle_manager",
+  "displayName": "Transaction Lifecycle Manager (EVM Adapter)",
+  "description": "Track, classify, and manage transaction lifecycle states (EVM-specific adapter)",
+  "version": "1.0.0",
+  "category": "execution",
+  "serverType": "evm",
+  "dependencies": {},
+  "files": [
+    {
+      "source": "action.ts",
+      "destination": "src/actions/txLifecycleManager.ts"
+    },
+    {
+      "source": "test.ts",
+      "destination": "src/tests/txLifecycleManager.test.ts"
+    },
+    {
+      "source": "README.md",
+      "destination": "docs/features/tx_lifecycle_manager.md"
+    }
+  ],
+  "integration": {
+    "actions": ["txLifecycleManagerAction"],
+    "imports": [
+      "import { txLifecycleManagerAction } from './actions/txLifecycleManager.js';"
+    ]
+  },
+  "environment": {
+    "required": [
+      "RPC_URL"
+    ],
+    "optional": [
+      "CHAIN_ID",
+      "TX_FINALITY_CONFIRMATIONS"
+    ]
+  },
+  "features": {
+    "serverSpecific": true,
+    "adapter": "evm"
+  },
+  "examples": [
+    "Run tx_lifecycle_manager with EVM adapter"
+  ]
+}

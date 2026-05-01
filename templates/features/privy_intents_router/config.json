@@ -1,0 +1,51 @@
+{
+  "name": "privy_intents_router",
+  "displayName": "Privy Intents Router",
+  "description": "Route Privy intent workflows for transfer and RPC operations",
+  "version": "1.0.0",
+  "category": "privy",
+  "dependencies": {},
+  "files": [
+    {
+      "source": "action.ts",
+      "destination": "src/actions/privyIntentsRouter.ts"
+    },
+    {
+      "source": "test.ts",
+      "destination": "src/tests/privyIntentsRouter.test.ts"
+    },
+    {
+      "source": "README.md",
+      "destination": "docs/features/privy_intents_router.md"
+    }
+  ],
+  "integration": {
+    "actions": ["privyIntentsRouterAction"],
+    "imports": [
+      "import { privyIntentsRouterAction } from './actions/privyIntentsRouter.js';"
+    ]
+  },
+  "environment": {
+    "required": [
+      "PRIVY_APP_ID",
+      "PRIVY_APP_SECRET"
+    ],
+    "optional": [
+      "PRIVY_BASE_URL",
+      "PRIVY_REQUEST_TIMEOUT_MS",
+      "PRIVY_REQUEST_EXPIRY_MS",
+      "PRIVY_RETRY_MAX_ATTEMPTS",
+      "PRIVY_RETRY_BASE_DELAY_MS",
+      "PRIVY_DEFAULT_WALLET_ID"
+    ]
+  },
+  "features": {
+    "workflowParity": true,
+    "chainAgnostic": true,
+    "privyBacked": true
+  },
+  "examples": [
+    "Run privy_intents_router for an EVM wallet",
+    "Run privy_intents_router for an SVM wallet"
+  ]
+}

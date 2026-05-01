@@ -1,0 +1,53 @@
+{
+  "name": "privy_signing_evm",
+  "displayName": "Privy Signing (EVM Adapter)",
+  "description": "Run EVM-specific Privy signing methods",
+  "version": "1.0.0",
+  "category": "privy",
+  "serverType": "evm",
+  "dependencies": {},
+  "featureDependencies": [
+    "privy_client_base"
+  ],
+  "files": [
+    {
+      "source": "action.ts",
+      "destination": "src/actions/privySigningEvm.ts"
+    },
+    {
+      "source": "test.ts",
+      "destination": "src/tests/privySigningEvm.test.ts"
+    },
+    {
+      "source": "README.md",
+      "destination": "docs/features/privy_signing_evm.md"
+    }
+  ],
+  "integration": {
+    "actions": ["privySigningEvmAction"],
+    "imports": [
+      "import { privySigningEvmAction } from './actions/privySigningEvm.js';"
+    ]
+  },
+  "environment": {
+    "required": [
+      "PRIVY_APP_ID",
+      "PRIVY_APP_SECRET"
+    ],
+    "optional": [
+      "PRIVY_BASE_URL",
+      "PRIVY_REQUEST_TIMEOUT_MS",
+      "PRIVY_REQUEST_EXPIRY_MS",
+      "PRIVY_RETRY_MAX_ATTEMPTS",
+      "PRIVY_RETRY_BASE_DELAY_MS"
+    ]
+  },
+  "features": {
+    "serverSpecific": true,
+    "adapter": "evm",
+    "privyBacked": true
+  },
+  "examples": [
+    "Run privy_signing_evm in a EVM project"
+  ]
+}

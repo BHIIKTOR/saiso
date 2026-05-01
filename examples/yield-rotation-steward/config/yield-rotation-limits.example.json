@@ -1,0 +1,17 @@
+{
+  "yield": {
+    "maxAllocationPct": 50,
+    "minAprBps": 450,
+    "rotationCooldownMinutes": 45,
+    "maxVenueCount": 3
+  },
+  "risk": {
+    "maxDrawdownPct": 8,
+    "maxSingleVenueExposurePct": 30,
+    "maxDailyLossUsd": 90
+  },
+  "reporting": {
+    "pnlSnapshotSeconds": 300,
+    "reportCron": "*/20 * * * *"
+  }
+}

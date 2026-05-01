@@ -1,0 +1,51 @@
+{
+  "name": "privy_accounts",
+  "displayName": "Privy Accounts",
+  "description": "Manage Privy account CRUD and balances",
+  "version": "1.0.0",
+  "category": "privy",
+  "dependencies": {},
+  "files": [
+    {
+      "source": "action.ts",
+      "destination": "src/actions/privyAccounts.ts"
+    },
+    {
+      "source": "test.ts",
+      "destination": "src/tests/privyAccounts.test.ts"
+    },
+    {
+      "source": "README.md",
+      "destination": "docs/features/privy_accounts.md"
+    }
+  ],
+  "integration": {
+    "actions": ["privyAccountsAction"],
+    "imports": [
+      "import { privyAccountsAction } from './actions/privyAccounts.js';"
+    ]
+  },
+  "environment": {
+    "required": [
+      "PRIVY_APP_ID",
+      "PRIVY_APP_SECRET"
+    ],
+    "optional": [
+      "PRIVY_BASE_URL",
+      "PRIVY_REQUEST_TIMEOUT_MS",
+      "PRIVY_REQUEST_EXPIRY_MS",
+      "PRIVY_RETRY_MAX_ATTEMPTS",
+      "PRIVY_RETRY_BASE_DELAY_MS",
+      "PRIVY_DEFAULT_WALLET_ID"
+    ]
+  },
+  "features": {
+    "workflowParity": true,
+    "chainAgnostic": true,
+    "privyBacked": true
+  },
+  "examples": [
+    "Run privy_accounts for an EVM wallet",
+    "Run privy_accounts for an SVM wallet"
+  ]
+}

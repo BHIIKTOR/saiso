@@ -1,0 +1,26 @@
+name: Live Paid Smoke
+
+on:
+  workflow_dispatch:
+
+jobs:
+  live-paid-smoke:
+    name: Live Paid Staging Flow
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Run live paid smoke checks
+      env:
+        LIVE_X402_URL: ${{ secrets.LIVE_X402_URL }}
+        LIVE_X402_CREDENTIAL_JSON: ${{ secrets.LIVE_X402_CREDENTIAL_JSON }}
+        LIVE_X402_REQUEST_METHOD: ${{ secrets.LIVE_X402_REQUEST_METHOD }}
+        LIVE_X402_REQUEST_BODY_JSON: ${{ secrets.LIVE_X402_REQUEST_BODY_JSON }}
+        LIVE_MPP_URL: ${{ secrets.LIVE_MPP_URL }}
+        LIVE_MPP_CREDENTIAL_JSON: ${{ secrets.LIVE_MPP_CREDENTIAL_JSON }}
+        LIVE_MPP_REQUEST_METHOD: ${{ secrets.LIVE_MPP_REQUEST_METHOD }}
+        LIVE_MPP_REQUEST_BODY_JSON: ${{ secrets.LIVE_MPP_REQUEST_BODY_JSON }}
+      run: |
+        node spec/saiso-v1.0/scripts/validate-live-paid-env.mjs
+        node spec/saiso-v1.0/scripts/smoke-paid-live.mjs

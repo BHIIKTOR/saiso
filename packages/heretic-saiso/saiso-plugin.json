@@ -1,0 +1,29 @@
+{
+  "manifestVersion": 1,
+  "id": "heretic-saiso",
+  "version": "1.0.0-rc2",
+  "pluginApiVersion": "1.0.0",
+  "saisoRange": "^1.0.0-rc2",
+  "entry": "dist/plugin-entry.bundle.js",
+  "capabilities": [
+    "heretic-daemon",
+    "workspace-session-bootstrap",
+    "runtime-provider-model",
+    "chat-transport",
+    "goal-runner",
+    "alert-scheduler"
+  ],
+  "configSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "defaultDaemonPath": {
+        "type": "string"
+      },
+      "defaultTransport": {
+        "type": "string"
+      }
+    }
+  }
+}

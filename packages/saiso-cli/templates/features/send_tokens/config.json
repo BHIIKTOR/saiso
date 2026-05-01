@@ -1,0 +1,51 @@
+{
+  "name": "send_tokens",
+  "displayName": "Send Tokens",
+  "description": "Send ETH and ERC-20 tokens with gas optimization, retry logic, and comprehensive error handling",
+  "version": "1.0.0",
+  "category": "defi",
+  "serverType": "evm",
+  "dependencies": {
+    "ethers": "^6.0.0"
+  },
+  "files": [
+    {
+      "source": "action.ts",
+      "destination": "src/actions/sendTokens.ts"
+    },
+    {
+      "source": "test.ts",
+      "destination": "src/tests/sendTokens.test.ts"
+    },
+    {
+      "source": "README.md",
+      "destination": "docs/features/send_tokens.md"
+    }
+  ],
+  "integration": {
+    "actions": ["sendTokensAction"],
+    "imports": [
+      "import { sendTokensAction } from './actions/sendTokens.js';"
+    ]
+  },
+  "environment": {
+    "required": [
+      "PRIVATE_KEY"
+    ],
+    "optional": [
+      "RPC_URL"
+    ]
+  },
+  "features": {
+    "gasOptimization": true,
+    "retryLogic": true,
+    "multiNetwork": true,
+    "errorHandling": "comprehensive",
+    "balanceValidation": true
+  },
+  "examples": [
+    "Send 1 ETH to 0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b5",
+    "Transfer 100 USDC to 0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b5",
+    "Pay 0.5 ETH with custom gas settings"
+  ]
+}

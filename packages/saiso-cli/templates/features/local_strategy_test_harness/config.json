@@ -1,0 +1,44 @@
+{
+  "name": "local_strategy_test_harness",
+  "displayName": "Local Strategy Test Harness",
+  "description": "Run deterministic local strategy scenarios",
+  "version": "1.0.0",
+  "category": "testing",
+  "dependencies": {},
+  "files": [
+    {
+      "source": "action.ts",
+      "destination": "src/actions/localStrategyTestHarness.ts"
+    },
+    {
+      "source": "test.ts",
+      "destination": "src/tests/localStrategyTestHarness.test.ts"
+    },
+    {
+      "source": "README.md",
+      "destination": "docs/features/local_strategy_test_harness.md"
+    }
+  ],
+  "integration": {
+    "actions": ["localStrategyTestHarnessAction"],
+    "imports": [
+      "import { localStrategyTestHarnessAction } from './actions/localStrategyTestHarness.js';"
+    ]
+  },
+  "environment": {
+    "required": [],
+    "optional": [
+      "PRIVY_APP_ID",
+      "PRIVY_APP_SECRET"
+    ]
+  },
+  "features": {
+    "workflowParity": true,
+    "chainAgnostic": true,
+    "productionScaffold": true
+  },
+  "examples": [
+    "Run local_strategy_test_harness in dry-run mode",
+    "Execute local_strategy_test_harness for EVM and SVM"
+  ]
+}

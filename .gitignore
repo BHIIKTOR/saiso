@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+
+# Build artifacts
+dist/
+packages/*/dist/
+.turbo/
+*.tsbuildinfo
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+!packages/**/.env.example
+
+# SAISO local state and sensitive artifacts
+.saiso/
+.saiso/cache/
+.saiso/payments/receipts.ndjson
+spec/saiso-v1.0/.wallets.polygon.local.json
+*.wallet.json
+
+# Local browser automation captures
+.playwright-cli/
+
+# OS/editor noise
+.DS_Store
+.vscode/
+.idea/
+.spec/
+
+# Test output
+coverage/

@@ -1,0 +1,52 @@
+{
+  "name": "interact_contract",
+  "displayName": "Interact Contract",
+  "description": "Generic smart contract interaction with read/write operations, gas optimization, and comprehensive error handling",
+  "version": "1.0.0",
+  "category": "blockchain",
+  "serverType": "evm",
+  "dependencies": {
+    "ethers": "^6.0.0"
+  },
+  "files": [
+    {
+      "source": "action.ts",
+      "destination": "src/actions/interactContract.ts"
+    },
+    {
+      "source": "test.ts",
+      "destination": "src/tests/interactContract.test.ts"
+    },
+    {
+      "source": "README.md",
+      "destination": "docs/features/interact_contract.md"
+    }
+  ],
+  "integration": {
+    "actions": ["interactContractAction"],
+    "imports": [
+      "import { interactContractAction } from './actions/interactContract.js';"
+    ]
+  },
+  "environment": {
+    "required": [],
+    "optional": [
+      "PRIVATE_KEY",
+      "RPC_URL"
+    ]
+  },
+  "features": {
+    "readOnlySupport": true,
+    "writeTransactions": true,
+    "gasOptimization": true,
+    "retryLogic": true,
+    "multiNetwork": true,
+    "abiSupport": true,
+    "errorHandling": "comprehensive"
+  },
+  "examples": [
+    "Check the total supply of token at 0x123...abc",
+    "Call approve function on USDC contract for 100 tokens",
+    "Execute custom contract function with ABI"
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "name": "privy_client_base",
+  "displayName": "Privy Client Base",
+  "description": "Shared Privy client, auth, retry, idempotency, and request-expiry foundation",
+  "version": "1.0.0",
+  "category": "privy",
+  "dependencies": {},
+  "files": [
+    {
+      "source": "action.ts",
+      "destination": "src/actions/privyClientBase.ts"
+    },
+    {
+      "source": "client.ts",
+      "destination": "src/integrations/privy/client.ts"
+    },
+    {
+      "source": "auth.ts",
+      "destination": "src/integrations/privy/auth.ts"
+    },
+    {
+      "source": "types.ts",
+      "destination": "src/integrations/privy/types.ts"
+    },
+    {
+      "source": "errors.ts",
+      "destination": "src/integrations/privy/errors.ts"
+    },
+    {
+      "source": "retry.ts",
+      "destination": "src/integrations/privy/retry.ts"
+    },
+    {
+      "source": "test.ts",
+      "destination": "src/tests/privyClientBase.test.ts"
+    },
+    {
+      "source": "README.md",
+      "destination": "docs/features/privy_client_base.md"
+    }
+  ],
+  "integration": {
+    "actions": ["privyClientBaseAction"],
+    "imports": [
+      "import { privyClientBaseAction } from './actions/privyClientBase.js';"
+    ]
+  },
+  "environment": {
+    "required": [
+      "PRIVY_APP_ID",
+      "PRIVY_APP_SECRET"
+    ],
+    "optional": [
+      "PRIVY_BASE_URL",
+      "PRIVY_REQUEST_TIMEOUT_MS",
+      "PRIVY_REQUEST_EXPIRY_MS",
+      "PRIVY_RETRY_MAX_ATTEMPTS",
+      "PRIVY_RETRY_BASE_DELAY_MS"
+    ]
+  },
+  "features": {
+    "workflowParity": true,
+    "chainAgnostic": true,
+    "privyBacked": true,
+    "clientFoundation": true
+  },
+  "examples": [
+    "Initialize Privy client base for EVM",
+    "Initialize Privy client base for SVM"
+  ]
+}

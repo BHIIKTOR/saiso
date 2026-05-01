@@ -1,0 +1,44 @@
+{
+  "name": "observability_and_incident_hooks",
+  "displayName": "Observability and Incident Hooks",
+  "description": "Emit structured telemetry and incident hooks",
+  "version": "1.0.0",
+  "category": "operations",
+  "dependencies": {},
+  "files": [
+    {
+      "source": "action.ts",
+      "destination": "src/actions/observabilityIncidentHooks.ts"
+    },
+    {
+      "source": "test.ts",
+      "destination": "src/tests/observabilityIncidentHooks.test.ts"
+    },
+    {
+      "source": "README.md",
+      "destination": "docs/features/observability_and_incident_hooks.md"
+    }
+  ],
+  "integration": {
+    "actions": ["observabilityIncidentHooksAction"],
+    "imports": [
+      "import { observabilityIncidentHooksAction } from './actions/observabilityIncidentHooks.js';"
+    ]
+  },
+  "environment": {
+    "required": [],
+    "optional": [
+      "PRIVY_APP_ID",
+      "PRIVY_APP_SECRET"
+    ]
+  },
+  "features": {
+    "workflowParity": true,
+    "chainAgnostic": true,
+    "productionScaffold": true
+  },
+  "examples": [
+    "Run observability_and_incident_hooks in dry-run mode",
+    "Execute observability_and_incident_hooks for EVM and SVM"
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "name": "@saiso/plugin-sdk",
+  "version": "1.0.0-rc2",
+  "description": "Plugin SDK contracts for SAISO plugin authors",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "bun test",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "files": [
+    "dist/**/*"
+  ],
+  "engines": {
+    "node": ">=18.0.0",
+    "bun": ">=1.0.0"
+  },
+  "keywords": [
+    "saiso",
+    "plugin",
+    "sdk"
+  ],
+  "license": "MIT"
+}

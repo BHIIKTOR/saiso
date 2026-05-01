@@ -1,0 +1,66 @@
+{
+  "name": "@saiso/cli",
+  "version": "1.0.0-rc2",
+  "description": "A developer-first toolkit for building EVM and SVM agents with ElizaOS",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "saiso": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "bun build src/cli.ts --outdir dist --target node --external @saiso/core && chmod +x dist/cli.js",
+    "prebuild": "npm run clean && npm run sync-templates",
+    "sync-templates": "rm -rf templates && mkdir -p templates && cp -R ../../templates/. templates/",
+    "dev": "tsc --watch",
+    "test": "bun test",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@saiso/core": "workspace:*",
+    "@saiso/plugin-sdk": "workspace:*",
+    "ajv": "^8.17.1",
+    "commander": "^12.0.0",
+    "dotenv": "^16.5.0",
+    "chalk": "^5.3.0",
+    "inquirer": "^10.0.0",
+    "ora": "^8.0.0",
+    "fs-extra": "^11.2.0",
+    "execa": "^9.0.0",
+    "semver": "^7.6.0"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/inquirer": "^9.0.7",
+    "@types/semver": "^7.5.8",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "files": [
+    "dist/**/*",
+    "templates/**/*"
+  ],
+  "engines": {
+    "node": ">=18.0.0",
+    "bun": ">=1.0.0"
+  },
+  "keywords": [
+    "cli",
+    "saiso",
+    "eliza",
+    "blockchain",
+    "agent",
+    "evm",
+    "svm"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bhiktor/saiso.git",
+    "directory": "packages/saiso-cli"
+  },
+  "homepage": "https://github.com/bhiktor/saiso#readme",
+  "bugs": {
+    "url": "https://github.com/bhiktor/saiso/issues"
+  }
+}

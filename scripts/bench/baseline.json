@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "samples": 5,
+  "iterations": 10000,
+  "benchmarks": {
+    "payment_parsing": {
+      "meanMs": 13.2637
+    },
+    "policy_evaluation": {
+      "meanMs": 0.6254
+    },
+    "routing_selection": {
+      "meanMs": 45.6197
+    },
+    "receipt_summarization": {
+      "meanMs": 34.1348
+    }
+  }
+}

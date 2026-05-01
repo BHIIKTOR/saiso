@@ -1,0 +1,23 @@
+{
+  "enabled": true,
+  "preferredProtocol": "auto",
+  "maxPerRequestUsd": 2,
+  "dailyBudgetUsd": 100,
+  "toolMaxPerRequestUsd": {
+    "subscription.charge": 2,
+    "subscription.retry": 1
+  },
+  "protocolAllowedRecipients": {
+    "x402": [
+      "merchant-x402.example"
+    ],
+    "mpp": [
+      "tempo.xyz"
+    ]
+  },
+  "operationClassMinTrustScore": {
+    "read": 0.45,
+    "write": 0.72,
+    "high-risk": 0.85
+  }
+}

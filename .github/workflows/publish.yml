@@ -1,0 +1,231 @@
+name: Publish Packages
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Release version (must match package.json versions)
+        required: true
+        type: string
+      dist_tag:
+        description: npm dist-tag (latest, next, rc)
+        required: false
+        default: latest
+        type: string
+      dry_run:
+        description: Run npm publish in dry-run mode
+        required: false
+        default: true
+        type: boolean
+      require_live_template_credentials:
+        description: Fail verification when hosted 0x or Privy credentials are missing
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  verify-release:
+    name: Verify Release Invariants
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+
+      - uses: oven-sh/setup-bun@v1
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Run RC validation gate
+        env:
+          ZEROX_API_KEY: ${{ secrets.ZEROX_API_KEY }}
+          ZEROX_SWAP_API_BASE: ${{ vars.ZEROX_SWAP_API_BASE }}
+          JUPITER_QUOTE_API_BASE: ${{ vars.JUPITER_QUOTE_API_BASE }}
+          PRIVY_APP_ID: ${{ secrets.PRIVY_APP_ID }}
+          PRIVY_APP_SECRET: ${{ secrets.PRIVY_APP_SECRET }}
+          PRIVY_BASE_URL: ${{ vars.PRIVY_BASE_URL }}
+          PRIVY_LIVE_WALLET_ID: ${{ secrets.PRIVY_LIVE_WALLET_ID }}
+          RPC_URL: ${{ secrets.RPC_URL }}
+          CHAIN_ID: ${{ vars.CHAIN_ID }}
+        run: |
+          FLAGS=""
+          if [[ "${{ inputs.require_live_template_credentials }}" == "true" ]]; then
+            FLAGS="--fail-on-skipped-credential"
+          fi
+          npm run release:validate-rc -- --version "${{ inputs.version }}" $FLAGS
+
+  publish-core:
+    name: Publish @saiso/core
+    needs: verify-release
+    runs-on: ubuntu-latest
+    environment: npm-publish
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+
+      - uses: oven-sh/setup-bun@v1
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build core package
+        run: npm --workspace packages/saiso-core run build
+
+      - name: Publish core package
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          cd packages/saiso-core
+          PUBLISH_FLAGS="--access public --tag ${{ inputs.dist_tag }} --provenance"
+          if [[ "${{ inputs.dry_run }}" == "true" ]]; then
+            npm publish $PUBLISH_FLAGS --dry-run
+          else
+            npm publish $PUBLISH_FLAGS
+          fi
+
+  publish-svm:
+    name: Publish @saiso/svm-mcp-server
+    needs: verify-release
+    runs-on: ubuntu-latest
+    environment: npm-publish
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+
+      - uses: oven-sh/setup-bun@v1
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build svm mcp server package
+        run: npm --workspace packages/saiso-svm-mcp-server run build
+
+      - name: Publish svm mcp server package
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          cd packages/saiso-svm-mcp-server
+          PUBLISH_FLAGS="--access public --tag ${{ inputs.dist_tag }} --provenance"
+          if [[ "${{ inputs.dry_run }}" == "true" ]]; then
+            npm publish $PUBLISH_FLAGS --dry-run
+          else
+            npm publish $PUBLISH_FLAGS
+          fi
+
+  publish-plugin-sdk:
+    name: Publish @saiso/plugin-sdk
+    needs: verify-release
+    runs-on: ubuntu-latest
+    environment: npm-publish
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+
+      - uses: oven-sh/setup-bun@v1
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build plugin SDK package
+        run: npm --workspace packages/saiso-plugin-sdk run build
+
+      - name: Publish plugin SDK package
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          cd packages/saiso-plugin-sdk
+          PUBLISH_FLAGS="--access public --tag ${{ inputs.dist_tag }} --provenance"
+          if [[ "${{ inputs.dry_run }}" == "true" ]]; then
+            npm publish $PUBLISH_FLAGS --dry-run
+          else
+            npm publish $PUBLISH_FLAGS
+          fi
+
+  publish-cli:
+    name: Publish @saiso/cli
+    needs: [publish-core, publish-plugin-sdk, publish-svm]
+    runs-on: ubuntu-latest
+    environment: npm-publish
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+
+      - uses: oven-sh/setup-bun@v1
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Prepare CLI dependency version
+        run: node scripts/release/prepare-cli-publish.mjs --version "${{ inputs.version }}"
+
+      - name: Build CLI package
+        run: npm --workspace packages/saiso-cli run build
+
+      - name: Wait for @saiso/core release visibility
+        if: ${{ inputs.dry_run == false }}
+        run: |
+          for attempt in $(seq 1 20); do
+            if npm view "@saiso/core@${{ inputs.version }}" version >/dev/null 2>&1; then
+              echo "@saiso/core@${{ inputs.version }} is visible in npm."
+              exit 0
+            fi
+            echo "Waiting for npm index propagation (attempt $attempt/20)..."
+            sleep 15
+          done
+          echo "Timed out waiting for @saiso/core@${{ inputs.version }} in npm."
+          exit 1
+
+      - name: Wait for @saiso/plugin-sdk release visibility
+        if: ${{ inputs.dry_run == false }}
+        run: |
+          for attempt in $(seq 1 20); do
+            if npm view "@saiso/plugin-sdk@${{ inputs.version }}" version >/dev/null 2>&1; then
+              echo "@saiso/plugin-sdk@${{ inputs.version }} is visible in npm."
+              exit 0
+            fi
+            echo "Waiting for npm index propagation (attempt $attempt/20)..."
+            sleep 15
+          done
+          echo "Timed out waiting for @saiso/plugin-sdk@${{ inputs.version }} in npm."
+          exit 1
+
+      - name: Publish CLI package
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          cd packages/saiso-cli
+          PUBLISH_FLAGS="--access public --tag ${{ inputs.dist_tag }} --provenance"
+          if [[ "${{ inputs.dry_run }}" == "true" ]]; then
+            npm publish $PUBLISH_FLAGS --dry-run
+          else
+            npm publish $PUBLISH_FLAGS
+          fi

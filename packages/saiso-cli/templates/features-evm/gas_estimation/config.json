@@ -1,0 +1,158 @@
+{
+  "name": "gas_estimation",
+  "displayName": "EVM Gas Estimation",
+  "description": "Multi-chain EVM gas estimation with MEV protection, EIP-1559 support, and cross-chain optimization for 30+ networks",
+  "version": "1.0.0",
+  "category": "network",
+  "serverType": "evm",
+  "dependencies": {
+    "ethers": "^6.0.0",
+    "@mcpdotdirect/evm-mcp-server": "^1.2.0"
+  },
+  "files": [
+    {
+      "source": "action.ts",
+      "destination": "src/actions/gasEstimation.ts"
+    },
+    {
+      "source": "test.ts",
+      "destination": "src/tests/gasEstimation.test.ts"
+    },
+    {
+      "source": "README.md",
+      "destination": "docs/features/gas_estimation.md"
+    }
+  ],
+  "integration": {
+    "actions": ["gasEstimationAction"],
+    "imports": [
+      "import { gasEstimationAction } from './actions/gasEstimation.js';"
+    ]
+  },
+  "environment": {
+    "required": [
+      "RPC_URL",
+      "CHAIN_ID"
+    ],
+    "optional": [
+      "GAS_PRICE_API_KEY",
+      "GAS_PRICE_API_URL",
+      "GAS_PRICE_USD_FALLBACK",
+      "ETH_PRICE_API_URL",
+      "ETH_PRICE_USD_FALLBACK",
+      "MEV_PROTECTION_ENABLED",
+      "FLASHBOTS_RELAY_URL",
+      "L2_OPTIMIZATION_ENABLED"
+    ]
+  },
+  "features": {
+    "eip1559": true,
+    "fallbackGas": true,
+    "mevProtection": true,
+    "multiChainSupport": true,
+    "l2Optimization": true,
+    "crossChainEstimation": true,
+    "congestionAnalysis": true,
+    "timeBasedPrediction": true,
+    "flashbotsIntegration": true
+  },
+  "parameters": {
+    "speed": {
+      "type": "enum",
+      "values": ["slow", "standard", "fast", "instant"],
+      "default": "standard",
+      "description": "Gas price speed preference across EVM networks"
+    },
+    "multiplier": {
+      "type": "number",
+      "range": [0.1, 5.0],
+      "default": 1.0,
+      "description": "Gas price multiplier for custom optimization"
+    },
+    "maxFeePerGas": {
+      "type": "string",
+      "optional": true,
+      "description": "EIP-1559 maximum fee per gas override (in gwei)"
+    },
+    "maxPriorityFeePerGas": {
+      "type": "string",
+      "optional": true,
+      "description": "EIP-1559 priority fee per gas override (in gwei)"
+    },
+    "gasLimit": {
+      "type": "number",
+      "optional": true,
+      "description": "Custom gas limit override"
+    },
+    "mevProtection": {
+      "type": "boolean",
+      "default": false,
+      "description": "Enable MEV protection strategies"
+    },
+    "useFlashbots": {
+      "type": "boolean",
+      "default": false,
+      "description": "Use Flashbots for MEV protection"
+    },
+    "includeUsdPrice": {
+      "type": "boolean",
+      "default": true,
+      "description": "Include USD cost estimation"
+    },
+    "optimizeForL2": {
+      "type": "boolean",
+      "default": false,
+      "description": "Apply L2-specific optimizations"
+    },
+    "crossChainAnalysis": {
+      "type": "boolean",
+      "default": false,
+      "description": "Include cross-chain gas comparison"
+    }
+  },
+  "networkSupport": {
+    "ethereum": {
+      "testnet": true,
+      "mainnet": true,
+      "features": ["eip1559", "mevProtection", "flashbots"]
+    },
+    "polygon": {
+      "testnet": true,
+      "mainnet": true,
+      "features": ["eip1559", "lowCost", "fastConfirmation"]
+    },
+    "arbitrum": {
+      "testnet": true,
+      "mainnet": true,
+      "features": ["eip1559", "l2Optimization", "lowCost"]
+    },
+    "optimism": {
+      "testnet": true,
+      "mainnet": true,
+      "features": ["eip1559", "l2Optimization", "lowCost"]
+    },
+    "avalanche": {
+      "testnet": true,
+      "mainnet": true,
+      "features": ["eip1559", "fastFinality"]
+    },
+    "bsc": {
+      "testnet": true,
+      "mainnet": true,
+      "features": ["fallbackGas", "lowCost"]
+    },
+    "fantom": {
+      "testnet": true,
+      "mainnet": true,
+      "features": ["fallbackGas", "fastConfirmation"]
+    }
+  },
+  "examples": [
+    "Estimate gas for Ethereum mainnet with MEV protection",
+    "Get fast gas price for Polygon transaction",
+    "Calculate L2-optimized gas for Arbitrum",
+    "Estimate cross-chain gas costs comparison",
+    "Get instant gas price with Flashbots integration",
+    "Calculate gas for multi-chain deployment"
+  ]
+}

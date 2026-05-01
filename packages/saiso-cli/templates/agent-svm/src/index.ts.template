@@ -1,0 +1,216 @@
+/**
+ * {{agentName}} - SVM Agent
+ * Built with SAISO and SVM MCP Server
+ * Environment: {{environment}}
+ * Network: {{targetNetwork}}
+ */
+
+import { config } from 'dotenv';
+import { saisoConfig, SvmMcpOrchestrator, logger, type PaymentChallenge } from '@saiso/core';
+
+// Load environment configuration
+config();
+
+function parseCredentialPayload(raw: string): Record<string, unknown> {
+  const parsed = JSON.parse(raw);
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    throw new Error('Credential payload must be a JSON object');
+  }
+
+  if (
+    'protocol' in parsed
+    && 'payload' in parsed
+    && typeof (parsed as { protocol?: unknown }).protocol === 'string'
+    && typeof (parsed as { payload?: unknown }).payload === 'object'
+    && (parsed as { payload?: unknown }).payload !== null
+  ) {
+    return (parsed as { payload: Record<string, unknown> }).payload;
+  }
+
+  return parsed as Record<string, unknown>;
+}
+
+interface PremiumToolDefinition {
+  name: string;
+  params: Record<string, unknown>;
+}
+
+function getPremiumToolPack(): PremiumToolDefinition[] {
+  const configured = process.env.SAISO_PREMIUM_TOOLS;
+  if (configured && configured.trim()) {
+    return configured
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean)
+      .map((name) => ({ name, params: { dryRun: true, context: 'premium-pack' } }));
+  }
+
+  return [
+    { name: 'premium-route', params: { market: 'SOL/USDC', dryRun: true } },
+    { name: 'premium-market-intel', params: { symbol: 'SOL', interval: '1h', dryRun: true } },
+    { name: 'premium-svm-simulate', params: { tx: 'base64tx', dryRun: true } },
+  ];
+}
+
+async function maybeRunPremiumPaidProbe(orchestrator: SvmMcpOrchestrator): Promise<void> {
+  if (process.env.SAISO_PREMIUM_PROBE !== 'true') {
+    return;
+  }
+
+  const recipient = process.env.SAISO_PREMIUM_RECIPIENT;
+  if (!recipient) {
+    logger.warn('⚠️ SAISO_PREMIUM_PROBE enabled but SAISO_PREMIUM_RECIPIENT is not set; skipping premium probe.');
+    return;
+  }
+
+  const amountUsd = Number.parseFloat(process.env.SAISO_PREMIUM_AMOUNT_USD || '0.2');
+  const preferredProtocol = (process.env.SAISO_PREMIUM_PROTOCOL as 'x402' | 'mpp' | 'auto' | undefined) || 'auto';
+
+  const resolveCredential = async (challenge: PaymentChallenge) => {
+    const key = challenge.protocol === 'x402'
+      ? 'X402_PAYMENT_CREDENTIAL_JSON'
+      : 'MPP_PAYMENT_CREDENTIAL_JSON';
+    const raw = process.env[key];
+    if (!raw) {
+      throw new Error(`Missing ${key} for premium paid probe`);
+    }
+
+    return {
+      protocol: challenge.protocol,
+      payload: parseCredentialPayload(raw),
+    };
+  };
+
+  const tools = getPremiumToolPack();
+  logger.info(`💳 Running premium paid tool pack (${tools.length} calls)...`);
+
+  for (const tool of tools) {
+    try {
+      const result = await orchestrator.invokeTool(
+        tool.name,
+        tool.params,
+        {
+          payment: {
+            enabled: true,
+            preferredProtocol,
+            maxPerRequestUsd: Number.isFinite(amountUsd) ? amountUsd : 0.2,
+          },
+          paymentContext: {
+            resource: `tool://${tool.name}`,
+            amountUsd: Number.isFinite(amountUsd) ? amountUsd : 0.2,
+            recipient,
+            metadata: {
+              operationClass: 'high-risk',
+              serverFamily: 'svm',
+            },
+          },
+          resolveCredential,
+          projectPath: process.cwd(),
+          timeoutMs: 10000,
+        }
+      );
+      logger.info(`💳 Premium paid tool succeeded (${tool.name}): ${JSON.stringify(result)}`);
+    } catch (error) {
+      logger.warn(`⚠️ Premium paid tool failed (${tool.name}, non-fatal): ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+}
+
+async function main() {
+  try {
+    logger.info('🚀 Starting {{agentName}} (SVM Agent)...');
+
+    // Load and validate configuration
+    const saisoConf = saisoConfig.loadConfig('{{environment}}');
+    const validation = saisoConfig.validateConfig(saisoConf);
+
+    if (!validation.valid) {
+      logger.error('❌ Configuration validation failed:');
+      validation.errors.forEach(error => logger.error(`  • ${error}`));
+      process.exit(1);
+    }
+
+    logger.info('✅ Configuration validated successfully');
+    logger.info(`📡 Network: ${saisoConf.network} (Chain ID: ${saisoConf.chainId})`);
+    logger.info(`🔗 RPC: ${saisoConf.rpcUrl}`);
+
+    // Initialize SVM MCP Server
+    const svmOrchestrator = new SvmMcpOrchestrator();
+
+    logger.info('🔧 Starting SVM MCP Server...');
+    const serverStatus = await svmOrchestrator.start(saisoConf, process.cwd());
+
+    if (serverStatus.running) {
+      logger.info('✅ SVM MCP Server started successfully');
+      logger.info(`📍 Server URL: ${serverStatus.url}`);
+      logger.info(`🆔 Process ID: ${serverStatus.pid}`);
+
+      // Display server capabilities
+      const capabilities = svmOrchestrator.getCapabilities();
+      logger.info('🛠️  Available Tools:');
+      capabilities.tools.forEach(tool => logger.info(`  • ${tool}`));
+
+      logger.info('🌐 Supported Networks:');
+      const supportedNetworks = capabilities.networks.slice(0, 10);
+      supportedNetworks.forEach(network =>
+        logger.info(`  • ${network.name} (${network.chainId}) ${network.testnet ? '🧪' : '🌐'}`)
+      );
+      if (capabilities.networks.length > 10) {
+        logger.info(`  • ... and ${capabilities.networks.length - 10} more networks`);
+      }
+
+      // Display advanced features
+      logger.info('🎯 Advanced Features:');
+      if (capabilities.features.nftSupport) logger.info('  • NFT Support');
+      if (capabilities.features.multiTokenSupport) logger.info('  • SPL/Token Standards');
+      if (capabilities.features.contractInteraction) logger.info('  • Smart Contract Interaction');
+      if (capabilities.features.gasEstimation) logger.info('  • Fee Estimation & Optimization');
+
+      await maybeRunPremiumPaidProbe(svmOrchestrator);
+
+    } else {
+      logger.error('❌ Failed to start SVM MCP Server');
+      process.exit(1);
+    }
+
+    // Graceful shutdown handling
+    const shutdown = async () => {
+      logger.info('🛑 Shutting down {{agentName}}...');
+      try {
+        await svmOrchestrator.stop();
+        logger.info('✅ SVM MCP Server stopped gracefully');
+        process.exit(0);
+      } catch (error) {
+        logger.error('❌ Error during shutdown:', error);
+        process.exit(1);
+      }
+    };
+
+    process.on('SIGINT', shutdown);
+    process.on('SIGTERM', shutdown);
+
+    logger.info('🎉 {{agentName}} is running! Press Ctrl+C to stop.');
+    logger.info('🌐 SVM support active across Solana clusters');
+
+    // Keep the process alive
+    process.stdin.resume();
+
+  } catch (error) {
+    logger.error('❌ Failed to start {{agentName}}:', error);
+    process.exit(1);
+  }
+}
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (reason, promise) => {
+  logger.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  process.exit(1);
+});
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (error) => {
+  logger.error('Uncaught Exception:', error);
+  process.exit(1);
+});
+
+main().catch(console.error);

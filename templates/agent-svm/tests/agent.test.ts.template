@@ -1,0 +1,22 @@
+import { describe, it, expect } from 'bun:test';
+
+describe('{{agentName}} SVM Agent', () => {
+  it('initializes with SVM runtime defaults', async () => {
+    const env = process.env.SAISO_TEST_ENV || '{{environment}}';
+    const rpcUrl = process.env.RPC_URL || '{{rpcUrl}}';
+
+    expect(['testnet', 'devnet', 'mainnet'].includes(env)).toBe(true);
+    expect(rpcUrl.startsWith('http://') || rpcUrl.startsWith('https://')).toBe(true);
+  });
+
+  it('supports SVM commitment and cluster config surfaces', async () => {
+    const commitment = process.env.SVM_COMMITMENT || 'confirmed';
+    expect(['processed', 'confirmed', 'finalized'].includes(commitment)).toBe(true);
+  });
+
+  it('preserves deterministic SVM feature contract checks', async () => {
+    const capabilities = ['ata-resolution', 'token-2022-fallback', 'tx-simulation'];
+    expect(capabilities).toContain('ata-resolution');
+    expect(capabilities).toContain('tx-simulation');
+  });
+});

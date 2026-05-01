@@ -1,0 +1,54 @@
+{
+  "name": "privy_balance_and_history",
+  "displayName": "Privy Balance and History",
+  "description": "Get Privy wallet balances and transaction history with normalized output",
+  "version": "1.0.0",
+  "category": "privy",
+  "dependencies": {},
+  "featureDependencies": [
+    "privy_client_base"
+  ],
+  "files": [
+    {
+      "source": "action.ts",
+      "destination": "src/actions/privyBalanceAndHistory.ts"
+    },
+    {
+      "source": "test.ts",
+      "destination": "src/tests/privyBalanceAndHistory.test.ts"
+    },
+    {
+      "source": "README.md",
+      "destination": "docs/features/privy_balance_and_history.md"
+    }
+  ],
+  "integration": {
+    "actions": ["privyBalanceAndHistoryAction"],
+    "imports": [
+      "import { privyBalanceAndHistoryAction } from './actions/privyBalanceAndHistory.js';"
+    ]
+  },
+  "environment": {
+    "required": [
+      "PRIVY_APP_ID",
+      "PRIVY_APP_SECRET"
+    ],
+    "optional": [
+      "PRIVY_BASE_URL",
+      "PRIVY_REQUEST_TIMEOUT_MS",
+      "PRIVY_REQUEST_EXPIRY_MS",
+      "PRIVY_RETRY_MAX_ATTEMPTS",
+      "PRIVY_RETRY_BASE_DELAY_MS",
+      "PRIVY_DEFAULT_WALLET_ID"
+    ]
+  },
+  "features": {
+    "workflowParity": true,
+    "chainAgnostic": true,
+    "privyBacked": true
+  },
+  "examples": [
+    "Run privy_balance_and_history for an EVM wallet",
+    "Run privy_balance_and_history for an SVM wallet"
+  ]
+}

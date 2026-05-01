@@ -1,0 +1,54 @@
+{
+  "name": "privy_transfer",
+  "displayName": "Privy Transfer",
+  "description": "Transfer assets through Privy wallet transfer APIs with parity envelope",
+  "version": "1.0.0",
+  "category": "privy",
+  "dependencies": {},
+  "featureDependencies": [
+    "privy_client_base"
+  ],
+  "files": [
+    {
+      "source": "action.ts",
+      "destination": "src/actions/privyTransfer.ts"
+    },
+    {
+      "source": "test.ts",
+      "destination": "src/tests/privyTransfer.test.ts"
+    },
+    {
+      "source": "README.md",
+      "destination": "docs/features/privy_transfer.md"
+    }
+  ],
+  "integration": {
+    "actions": ["privyTransferAction"],
+    "imports": [
+      "import { privyTransferAction } from './actions/privyTransfer.js';"
+    ]
+  },
+  "environment": {
+    "required": [
+      "PRIVY_APP_ID",
+      "PRIVY_APP_SECRET"
+    ],
+    "optional": [
+      "PRIVY_BASE_URL",
+      "PRIVY_REQUEST_TIMEOUT_MS",
+      "PRIVY_REQUEST_EXPIRY_MS",
+      "PRIVY_RETRY_MAX_ATTEMPTS",
+      "PRIVY_RETRY_BASE_DELAY_MS",
+      "PRIVY_DEFAULT_WALLET_ID"
+    ]
+  },
+  "features": {
+    "workflowParity": true,
+    "chainAgnostic": true,
+    "privyBacked": true
+  },
+  "examples": [
+    "Run privy_transfer for an EVM wallet",
+    "Run privy_transfer for an SVM wallet"
+  ]
+}

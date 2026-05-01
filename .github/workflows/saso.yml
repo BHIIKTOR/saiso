@@ -1,0 +1,170 @@
+name: SAISO CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  core-quality:
+    name: Core Quality Gates
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: oven-sh/setup-bun@v1
+
+    - name: Install dependencies
+      run: bun install
+
+    - name: Validate template feature manifests
+      run: node scripts/validate-template-features.mjs
+
+    - name: Enforce template sync drift gate
+      run: diff -rq templates packages/saiso-cli/templates
+
+    - name: Run generated template regression
+      run: npm run templates:regression
+
+    - name: Typecheck core
+      run: npx tsc -p packages/saiso-core/tsconfig.json
+
+    - name: Typecheck cli
+      run: npx tsc -p packages/saiso-cli/tsconfig.json
+
+    - name: Typecheck svm mcp server
+      run: npx tsc -p packages/saiso-svm-mcp-server/tsconfig.json
+
+    - name: Run core tests
+      run: bun test packages/saiso-core/tests
+
+    - name: Run CLI tests
+      run: bun test packages/saiso-cli/src
+
+    - name: Run svm mcp server tests
+      run: bun test packages/saiso-svm-mcp-server/tests
+
+    - name: Run service blueprint endpoint tests
+      run: bun test packages/saiso-core/tests/service-blueprint.test.ts
+
+    - name: Run deterministic paid e2e lane
+      run: bun test packages/saiso-core/tests/paid-e2e-lane.test.ts
+
+    - name: Run strict policy validation gate
+      run: |
+        bun run packages/saiso-cli/src/cli.ts policy validate \
+          --strict \
+          --payment-file spec/hardening-01/fixtures/policies/payment-policy.json \
+          --trust-file spec/hardening-01/fixtures/policies/trust-policy.json
+
+    - name: Run benchmark regression lane
+      run: npm run perf:bench
+
+  staging-payments-smoke:
+    name: Staging Payments Smoke
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Run x402 + MPP staging smoke checks
+      run: node spec/saiso-v1.0/scripts/smoke-x402-mpp.mjs
+
+  docker-quality:
+    name: Docker Runtime Quality
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: oven-sh/setup-bun@v1
+
+    - name: Install dependencies
+      run: bun install
+
+    - name: Run Docker-focused core tests
+      run: bun test packages/saiso-core/tests/config-docker-validation.test.ts packages/saiso-core/tests/docker-orchestrator.integration.test.ts
+
+    - name: Run Docker-focused CLI tests
+      run: bun test packages/saiso-cli/src/commands/docker.test.ts packages/saiso-cli/src/core/localnet.test.ts
+
+    - name: Capture Docker diagnostics on failure
+      if: failure()
+      run: |
+        mkdir -p /tmp/saiso-docker-artifacts
+        docker ps -a > /tmp/saiso-docker-artifacts/docker-ps.txt || true
+        docker images > /tmp/saiso-docker-artifacts/docker-images.txt || true
+        for id in $(docker ps -aq --filter "label=saiso.mode=docker"); do
+          docker logs "$id" > "/tmp/saiso-docker-artifacts/${id}.log" 2>&1 || true
+        done
+
+    - name: Upload Docker diagnostics
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: docker-quality-artifacts
+        path: /tmp/saiso-docker-artifacts
+
+  docker-localnet:
+    name: Docker Localnet Integration
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: oven-sh/setup-bun@v1
+
+    - name: Install dependencies
+      run: bun install
+
+    - name: Run localnet integration smoke script
+      run: node scripts/docker-localnet-smoke.mjs
+
+    - name: Capture Docker diagnostics on failure
+      if: failure()
+      run: |
+        mkdir -p /tmp/saiso-localnet-artifacts
+        docker ps -a > /tmp/saiso-localnet-artifacts/docker-ps.txt || true
+        for id in $(docker ps -aq); do
+          docker logs "$id" > "/tmp/saiso-localnet-artifacts/${id}.log" 2>&1 || true
+        done
+
+    - name: Upload localnet diagnostics
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: docker-localnet-artifacts
+        path: /tmp/saiso-localnet-artifacts
+
+  identity-drift-gate:
+    name: Identity Drift Gate
+    if: ${{ vars.IDENTITY_DRIFT_CHECK == 'true' }}
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: oven-sh/setup-bun@v1
+
+    - name: Install dependencies
+      run: bun install
+
+    - name: Build core + cli for identity command execution
+      run: |
+        npm --workspace packages/saiso-core run build
+        npm --workspace packages/saiso-cli run build
+
+    - name: Run strict identity drift check
+      env:
+        IDENTITY_REGISTRY_BASE_URL: ${{ secrets.IDENTITY_REGISTRY_BASE_URL }}
+        IDENTITY_AGENT_REGISTRY: ${{ secrets.IDENTITY_AGENT_REGISTRY }}
+        IDENTITY_AGENT_ID: ${{ secrets.IDENTITY_AGENT_ID }}
+      run: |
+        if [ -z "$IDENTITY_REGISTRY_BASE_URL" ] || [ -z "$IDENTITY_AGENT_REGISTRY" ] || [ -z "$IDENTITY_AGENT_ID" ]; then
+          echo "IDENTITY_REGISTRY_BASE_URL, IDENTITY_AGENT_REGISTRY, and IDENTITY_AGENT_ID secrets are required when IDENTITY_DRIFT_CHECK=true."
+          exit 1
+        fi
+        node packages/saiso-cli/dist/cli.js identity sync \
+          --registry-base-url "$IDENTITY_REGISTRY_BASE_URL" \
+          --agent-registry "$IDENTITY_AGENT_REGISTRY" \
+          --agent-id "$IDENTITY_AGENT_ID" \
+          --dry-run \
+          --strict

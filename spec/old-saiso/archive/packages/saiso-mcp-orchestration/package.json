@@ -1,0 +1,64 @@
+{
+  "name": "@saiso/saiso-mcp-orchestration",
+  "version": "0.1.0",
+  "description": "Legacy MCP server orchestration for SAISO (SEI compatibility)",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "saiso-sei-mcp": "dist/cli.js"
+  },
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./sei": {
+      "import": "./dist/sei-server.js",
+      "types": "./dist/sei-server.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "bun test",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@saiso/core": "^0.1.0",
+    "@modelcontextprotocol/sdk": "^0.4.0",
+    "ethers": "^6.0.0",
+    "dotenv": "^16.5.0",
+    "chalk": "^5.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "files": [
+    "dist/**/*"
+  ],
+  "engines": {
+    "node": ">=18.0.0",
+    "bun": ">=1.0.0"
+  },
+  "keywords": [
+    "saiso",
+    "mcp",
+    "sei",
+    "legacy",
+    "blockchain",
+    "orchestration"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bhiktor/saiso.git",
+    "directory": "packages/saiso-mcp-orchestration"
+  },
+  "homepage": "https://github.com/bhiktor/saiso#readme",
+  "bugs": {
+    "url": "https://github.com/bhiktor/saiso/issues"
+  }
+}

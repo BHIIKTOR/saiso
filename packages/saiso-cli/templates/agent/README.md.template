@@ -1,0 +1,160 @@
+# {{agentName}}
+
+{{description}}
+
+A multi-chain blockchain agent built with [SAISO](https://github.com/bhiktor/saiso) toolkit.
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) (v18 or higher)
+- [Bun](https://bun.sh/) (recommended) or npm
+
+### Installation
+
+```bash
+# Install dependencies
+bun install
+
+# Copy environment configuration
+cp .env.example .env
+
+# Edit your environment variables
+nano .env
+```
+
+### Configuration
+
+Set your private key and other configuration in the `.env` file:
+
+```bash
+# Required: your private key for the selected network family
+PRIVATE_KEY=your_private_key_here
+
+# Optional: Customize other settings
+AGENT_NAME={{agentName}}
+NETWORK={{targetNetwork}}
+LOG_LEVEL=info
+```
+
+### Running the Agent
+
+```bash
+# Development mode
+bun run dev
+
+# Production mode
+bun run start
+```
+
+## 🌐 Environment Management
+
+This project is configured for **{{environment}}** environment.
+
+### Switch Environments
+
+```bash
+# Switch to mainnet (requires confirmation)
+saiso switch-env mainnet
+
+# Switch back to testnet
+saiso switch-env testnet
+
+# Check current configuration
+saiso config get
+```
+
+## 🧪 Testing
+
+```bash
+# Run all tests
+bun run test
+```
+
+## 📦 Adding Features
+
+Add pre-built features to your agent:
+
+```bash
+# List all available features
+saiso add --list
+
+# Core reliability and execution features
+saiso add preflight_risk_checks
+saiso add tx_lifecycle_manager
+saiso add quote_and_swap
+
+# Privy feature foundation
+saiso add privy_client_base
+saiso add privy_wallet_lifecycle
+saiso add privy_transfer
+```
+
+## 🔧 Available Features
+
+SAISO features are grouped into the following categories:
+
+- Core wallet/network: `send_tokens`, `query_balance`, `interact_contract`, `gas_estimation`, `check_network_status`
+- Reliability and safety: `preflight_risk_checks`, `tx_lifecycle_manager`, `policy_guardrails_runtime`, `allowance_and_permission_manager`
+- Execution and automation: `quote_and_swap`, `event_ingest_and_triggers`, `scheduler_and_workflow_runner`, `cross_chain_intent_router`
+- State and operations: `portfolio_state_and_pnl`, `oracle_and_market_data_layer`, `observability_and_incident_hooks`, `local_strategy_test_harness`
+- Privy pack: `privy_client_base`, `privy_wallet_lifecycle`, `privy_balance_and_history`, `privy_transfer`, `privy_actions_swap`, `privy_policy_controls`, `privy_intents_router`, `privy_webhook_ingest`, `privy_accounts`, `privy_signing_evm`, `privy_signing_svm`, `privy_advanced_execution_evm`
+
+## 🔐 Privy Setup
+
+For Privy-backed features, configure these variables in `.env`:
+
+```bash
+PRIVY_APP_ID=your_privy_app_id
+PRIVY_APP_SECRET=your_privy_app_secret
+
+# Optional hardening controls
+PRIVY_BASE_URL=https://api.privy.io/v1
+PRIVY_REQUEST_TIMEOUT_MS=30000
+PRIVY_REQUEST_EXPIRY_MS=120000
+PRIVY_RETRY_MAX_ATTEMPTS=3
+PRIVY_RETRY_BASE_DELAY_MS=200
+```
+
+Recommended install order for Privy features:
+
+1. `privy_client_base`
+2. `privy_wallet_lifecycle`
+3. `privy_balance_and_history`
+4. `privy_transfer`
+5. chain-specific signing (`privy_signing_evm` or `privy_signing_svm`)
+6. `privy_actions_swap`
+7. `privy_policy_controls`
+8. `privy_intents_router`
+9. `privy_webhook_ingest`
+10. `privy_accounts`
+
+## 🛡️ Security
+
+- Never commit your `.env` file to version control
+- Use testnet for development and testing
+- Always verify transaction details before confirming
+- Keep your private keys secure and backed up
+
+## 📚 Documentation
+
+- [SAISO Documentation](https://github.com/bhiktor/saiso)
+- [Ethereum Documentation](https://ethereum.org/en/developers/docs/)
+- [Solana Documentation](https://solana.com/docs)
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
+
+## 📄 License
+
+MIT License - see LICENSE file for details.
+
+---
+
+Built with ❤️ using SAISO toolkit.

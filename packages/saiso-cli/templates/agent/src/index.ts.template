@@ -1,0 +1,162 @@
+import { saisoConfig, createMcpOrchestrator, type PaymentChallenge } from '@saiso/core';
+
+function parseCredentialPayload(raw: string): Record<string, unknown> {
+  const parsed = JSON.parse(raw);
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    throw new Error('Credential payload must be a JSON object');
+  }
+  if (
+    'protocol' in parsed
+    && 'payload' in parsed
+    && typeof (parsed as { payload?: unknown }).payload === 'object'
+    && (parsed as { payload?: unknown }).payload !== null
+  ) {
+    return (parsed as { payload: Record<string, unknown> }).payload;
+  }
+  return parsed as Record<string, unknown>;
+}
+
+async function maybeRunPremiumPaidProbe(
+  orchestrator: ReturnType<typeof createMcpOrchestrator>,
+  config: ReturnType<typeof saisoConfig.loadConfig>
+): Promise<void> {
+  if (process.env.SAISO_PREMIUM_PROBE !== 'true') {
+    return;
+  }
+
+  const recipient = process.env.SAISO_PREMIUM_RECIPIENT;
+  if (!recipient) {
+    console.warn('SAISO_PREMIUM_PROBE enabled but SAISO_PREMIUM_RECIPIENT is missing; skipping.');
+    return;
+  }
+
+  const amountUsd = Number.parseFloat(process.env.SAISO_PREMIUM_AMOUNT_USD || '0.2');
+  const preferredProtocol = (process.env.SAISO_PREMIUM_PROTOCOL as 'x402' | 'mpp' | 'auto' | undefined) || 'auto';
+
+  const resolveCredential = async (challenge: PaymentChallenge) => {
+    const key = challenge.protocol === 'x402'
+      ? 'X402_PAYMENT_CREDENTIAL_JSON'
+      : 'MPP_PAYMENT_CREDENTIAL_JSON';
+    const raw = process.env[key];
+    if (!raw) {
+      throw new Error(`Missing ${key} for premium paid probe`);
+    }
+    return {
+      protocol: challenge.protocol,
+      payload: parseCredentialPayload(raw),
+    };
+  };
+
+  const defaultTools = config.mcpServer.type === 'svm'
+    ? ['premium-route', 'premium-market-intel', 'premium-svm-simulate']
+    : ['premium-simulate', 'premium-market-intel', 'premium-route-optimize'];
+  const configured = process.env.SAISO_PREMIUM_TOOLS;
+  const tools = configured && configured.trim()
+    ? configured.split(',').map((name) => name.trim()).filter(Boolean)
+    : defaultTools;
+
+  const getProbeParams = (toolName: string): Record<string, unknown> => {
+    if (config.mcpServer.type === 'svm') {
+      switch (toolName) {
+        case 'premium-route':
+          return { market: 'SOL/USDC', dryRun: true };
+        case 'premium-market-intel':
+          return { symbol: 'SOL', interval: '1h', dryRun: true };
+        case 'premium-svm-simulate':
+          return { tx: 'base64tx', dryRun: true };
+        default:
+          return { dryRun: true, context: 'premium-pack' };
+      }
+    }
+
+    switch (toolName) {
+      case 'premium-simulate':
+        return { tx: '0x', dryRun: true };
+      case 'premium-market-intel':
+        return { symbol: 'ETH', interval: '1h', dryRun: true };
+      case 'premium-route-optimize':
+        return { from: 'USDC', to: 'ETH', amount: '100', dryRun: true };
+      default:
+        return { dryRun: true, context: 'premium-pack' };
+    }
+  };
+
+  for (const toolName of tools) {
+    try {
+      const result = await orchestrator.invokeTool(
+        toolName,
+        getProbeParams(toolName),
+        {
+          payment: {
+            enabled: true,
+            preferredProtocol,
+            maxPerRequestUsd: Number.isFinite(amountUsd) ? amountUsd : 0.2,
+          },
+          paymentContext: {
+            resource: `tool://${toolName}`,
+            amountUsd: Number.isFinite(amountUsd) ? amountUsd : 0.2,
+            recipient,
+            metadata: {
+              operationClass: 'high-risk',
+              serverFamily: config.mcpServer.type,
+            },
+          },
+          resolveCredential,
+          projectPath: process.cwd(),
+        }
+      );
+      console.log(`💳 Premium paid probe (${toolName}) result:`, JSON.stringify(result));
+    } catch (error) {
+      console.warn(`⚠️ Premium paid probe failed (${toolName}, non-fatal):`, error instanceof Error ? error.message : String(error));
+    }
+  }
+}
+
+async function main() {
+  console.log('🚀 Starting {{agentName}} Agent...');
+
+  try {
+    // Load configuration
+    const config = saisoConfig.loadConfig();
+    console.log('✅ Configuration loaded successfully');
+
+    // Validate configuration
+    const validation = saisoConfig.validateConfig(config);
+    if (!validation.valid) {
+      console.error('❌ Configuration validation failed:');
+      validation.errors.forEach(error => console.error(`   • ${error}`));
+      process.exit(1);
+    }
+    console.log('✅ Configuration validated');
+
+    // Create chain-specific MCP orchestrator
+    console.log('🔧 Creating MCP orchestrator...');
+    const orchestrator = createMcpOrchestrator(config);
+    const status = await orchestrator.start(config, process.cwd());
+    console.log(`✅ MCP server started (${status.type}) at ${status.url}`);
+
+    await maybeRunPremiumPaidProbe(orchestrator, config);
+
+    console.log('🎉 {{agentName}} Agent started successfully!');
+    console.log('📝 All core components are working correctly.');
+
+    // Keep the process running
+    process.on('SIGINT', async () => {
+      console.log('\n🛑 Shutting down {{agentName}} Agent...');
+      await orchestrator.stop();
+      console.log('✅ Agent stopped successfully');
+      process.exit(0);
+    });
+
+    // Keep alive
+    setInterval(() => {
+      // Heartbeat to keep process alive
+    }, 30000);
+
+  } catch (error) {
+    console.error('❌ Failed to start {{agentName}} Agent:', error);
+    process.exit(1);
+  }
+}
+
+main().catch(console.error);

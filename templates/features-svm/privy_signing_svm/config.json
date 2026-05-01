@@ -1,0 +1,53 @@
+{
+  "name": "privy_signing_svm",
+  "displayName": "Privy Signing (SVM Adapter)",
+  "description": "Run SVM-specific Privy signing methods",
+  "version": "1.0.0",
+  "category": "privy",
+  "serverType": "svm",
+  "dependencies": {},
+  "featureDependencies": [
+    "privy_client_base"
+  ],
+  "files": [
+    {
+      "source": "action.ts",
+      "destination": "src/actions/privySigningSvm.ts"
+    },
+    {
+      "source": "test.ts",
+      "destination": "src/tests/privySigningSvm.test.ts"
+    },
+    {
+      "source": "README.md",
+      "destination": "docs/features/privy_signing_svm.md"
+    }
+  ],
+  "integration": {
+    "actions": ["privySigningSvmAction"],
+    "imports": [
+      "import { privySigningSvmAction } from './actions/privySigningSvm.js';"
+    ]
+  },
+  "environment": {
+    "required": [
+      "PRIVY_APP_ID",
+      "PRIVY_APP_SECRET"
+    ],
+    "optional": [
+      "PRIVY_BASE_URL",
+      "PRIVY_REQUEST_TIMEOUT_MS",
+      "PRIVY_REQUEST_EXPIRY_MS",
+      "PRIVY_RETRY_MAX_ATTEMPTS",
+      "PRIVY_RETRY_BASE_DELAY_MS"
+    ]
+  },
+  "features": {
+    "serverSpecific": true,
+    "adapter": "svm",
+    "privyBacked": true
+  },
+  "examples": [
+    "Run privy_signing_svm in a SVM project"
+  ]
+}

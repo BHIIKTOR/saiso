@@ -1,0 +1,54 @@
+{
+  "name": "privy_wallet_lifecycle",
+  "displayName": "Privy Wallet Lifecycle",
+  "description": "Manage Privy wallet lifecycle workflows across EVM and SVM",
+  "version": "1.0.0",
+  "category": "privy",
+  "dependencies": {},
+  "featureDependencies": [
+    "privy_client_base"
+  ],
+  "files": [
+    {
+      "source": "action.ts",
+      "destination": "src/actions/privyWalletLifecycle.ts"
+    },
+    {
+      "source": "test.ts",
+      "destination": "src/tests/privyWalletLifecycle.test.ts"
+    },
+    {
+      "source": "README.md",
+      "destination": "docs/features/privy_wallet_lifecycle.md"
+    }
+  ],
+  "integration": {
+    "actions": ["privyWalletLifecycleAction"],
+    "imports": [
+      "import { privyWalletLifecycleAction } from './actions/privyWalletLifecycle.js';"
+    ]
+  },
+  "environment": {
+    "required": [
+      "PRIVY_APP_ID",
+      "PRIVY_APP_SECRET"
+    ],
+    "optional": [
+      "PRIVY_BASE_URL",
+      "PRIVY_REQUEST_TIMEOUT_MS",
+      "PRIVY_REQUEST_EXPIRY_MS",
+      "PRIVY_RETRY_MAX_ATTEMPTS",
+      "PRIVY_RETRY_BASE_DELAY_MS",
+      "PRIVY_DEFAULT_WALLET_ID"
+    ]
+  },
+  "features": {
+    "workflowParity": true,
+    "chainAgnostic": true,
+    "privyBacked": true
+  },
+  "examples": [
+    "Run privy_wallet_lifecycle for an EVM wallet",
+    "Run privy_wallet_lifecycle for an SVM wallet"
+  ]
+}

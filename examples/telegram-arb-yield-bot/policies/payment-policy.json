@@ -1,0 +1,17 @@
+{
+  "enabled": true,
+  "preferredProtocol": "auto",
+  "maxPerRequestUsd": 1,
+  "dailyBudgetUsd": 25,
+  "toolMaxPerRequestUsd": {
+    "premium-simulate": 0.5,
+    "premium-market-intel": 0.5,
+    "premium-route-optimize": 1,
+    "privy_actions_swap": 1
+  },
+  "operationClassMinTrustScore": {
+    "read": 0.45,
+    "write": 0.7,
+    "high-risk": 0.82
+  }
+}

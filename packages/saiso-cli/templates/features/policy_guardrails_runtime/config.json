@@ -1,0 +1,47 @@
+{
+  "name": "policy_guardrails_runtime",
+  "displayName": "Policy Guardrails Runtime",
+  "description": "Enforce runtime guardrails for cost, trust, and recipients",
+  "version": "1.0.0",
+  "category": "security",
+  "dependencies": {},
+  "files": [
+    {
+      "source": "action.ts",
+      "destination": "src/actions/policyGuardrailsRuntime.ts"
+    },
+    {
+      "source": "test.ts",
+      "destination": "src/tests/policyGuardrailsRuntime.test.ts"
+    },
+    {
+      "source": "README.md",
+      "destination": "docs/features/policy_guardrails_runtime.md"
+    }
+  ],
+  "integration": {
+    "actions": ["policyGuardrailsRuntimeAction"],
+    "imports": [
+      "import { policyGuardrailsRuntimeAction } from './actions/policyGuardrailsRuntime.js';"
+    ]
+  },
+  "environment": {
+    "required": [],
+    "optional": [
+      "PAYMENT_MAX_PER_REQUEST_USD",
+      "TRUST_MIN_SCORE",
+      "PAYMENT_ALLOWED_RECIPIENTS",
+      "PAYMENT_BLOCKED_RECIPIENTS",
+      "POLICY_REQUIRE_DRY_RUN"
+    ]
+  },
+  "features": {
+    "workflowParity": true,
+    "chainAgnostic": true,
+    "productionScaffold": true
+  },
+  "examples": [
+    "Run policy_guardrails_runtime in dry-run mode",
+    "Execute policy_guardrails_runtime for EVM and SVM"
+  ]
+}

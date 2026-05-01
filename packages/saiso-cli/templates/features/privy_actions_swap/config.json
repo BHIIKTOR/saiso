@@ -1,0 +1,51 @@
+{
+  "name": "privy_actions_swap",
+  "displayName": "Privy Actions Swap",
+  "description": "Run Privy swap quote and action status workflows",
+  "version": "1.0.0",
+  "category": "privy",
+  "dependencies": {},
+  "files": [
+    {
+      "source": "action.ts",
+      "destination": "src/actions/privyActionsSwap.ts"
+    },
+    {
+      "source": "test.ts",
+      "destination": "src/tests/privyActionsSwap.test.ts"
+    },
+    {
+      "source": "README.md",
+      "destination": "docs/features/privy_actions_swap.md"
+    }
+  ],
+  "integration": {
+    "actions": ["privyActionsSwapAction"],
+    "imports": [
+      "import { privyActionsSwapAction } from './actions/privyActionsSwap.js';"
+    ]
+  },
+  "environment": {
+    "required": [
+      "PRIVY_APP_ID",
+      "PRIVY_APP_SECRET"
+    ],
+    "optional": [
+      "PRIVY_BASE_URL",
+      "PRIVY_REQUEST_TIMEOUT_MS",
+      "PRIVY_REQUEST_EXPIRY_MS",
+      "PRIVY_RETRY_MAX_ATTEMPTS",
+      "PRIVY_RETRY_BASE_DELAY_MS",
+      "PRIVY_DEFAULT_WALLET_ID"
+    ]
+  },
+  "features": {
+    "workflowParity": true,
+    "chainAgnostic": true,
+    "privyBacked": true
+  },
+  "examples": [
+    "Run privy_actions_swap for an EVM wallet",
+    "Run privy_actions_swap for an SVM wallet"
+  ]
+}

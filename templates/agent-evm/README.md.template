@@ -1,0 +1,297 @@
+# {{projectName}}
+
+A multi-chain EVM blockchain agent built with [SAISO](https://github.com/bhiktor/saiso) using the **EVM MCP Server** for comprehensive blockchain ecosystem access.
+
+## 🌐 EVM Server Features
+
+This agent uses the external EVM MCP Server (`@mcpdotdirect/evm-mcp-server`), which provides:
+
+- **🌍 Multi-Chain Support**: 30+ EVM-compatible networks
+  - **Tier 1**: Ethereum, Optimism, Arbitrum, Base, Polygon
+  - **Tier 2**: Avalanche, BSC, zkSync Era, Linea, Celo
+  - **Emerging**: Scroll, Mantle, Manta, Blast, Fraxtal, Mode
+- **🛠️ Comprehensive Tools**: 15+ blockchain operations
+  - Token operations (ERC-20, transfers, approvals)
+  - NFT support (ERC-721, ERC-1155)
+  - Smart contract interactions
+  - ENS resolution
+  - Gas estimation and optimization
+- **🎯 Advanced Features**: ENS, NFTs, multi-token standards
+- **🔒 Production Ready**: Actively maintained external package
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) (v18 or higher)
+- [Bun](https://bun.sh/) (recommended) or npm
+
+### Installation
+
+```bash
+# Install dependencies
+bun install
+
+# Copy environment configuration
+cp .env.example .env
+
+# Edit your environment variables
+nano .env
+```
+
+### Configuration
+
+Set your private key and other configuration in the `.env` file:
+
+```bash
+# Required: Your private key
+PRIVATE_KEY=your_private_key_here
+
+# Network (automatically configured for {{targetNetwork}})
+NETWORK={{targetNetwork}}
+RPC_URL={{rpcUrl}}
+CHAIN_ID={{chainId}}
+
+# Agent settings
+AGENT_NAME={{agentName}}
+LOG_LEVEL=info
+```
+
+### Running the Agent
+
+```bash
+# Development mode (auto-restart on changes)
+bun run dev
+
+# Production mode
+bun run start
+```
+
+## 🌐 Network Support
+
+This agent is configured for **{{targetNetwork}}**:
+
+- **Network**: {{targetNetwork}}
+- **Chain ID**: {{chainId}}
+- **RPC URL**: {{rpcUrl}}
+- **Native Currency**: {{nativeCurrency}}
+- **Block Explorer**: {{blockExplorerUrl}}
+
+### Supported Networks
+
+The EVM MCP Server supports 30+ networks including:
+
+#### **Mainnets**
+- Ethereum, Optimism, Arbitrum, Base, Polygon
+- Avalanche, BSC, zkSync Era, Linea, Celo
+- Scroll, Mantle, Manta, Blast, Fraxtal
+- Mode, Metis, Kroma, Zora, Moonbeam
+
+#### **Testnets**
+- Sepolia, Optimism Sepolia, Arbitrum Sepolia
+- Base Sepolia, Polygon Amoy, Avalanche Fuji
+- BSC Testnet, zkSync Sepolia, Linea Sepolia
+
+### Switch Networks
+
+```bash
+# Switch to different networks
+saiso switch-env mainnet    # Production networks
+saiso switch-env testnet    # Test networks
+saiso switch-env devnet     # Development networks
+```
+
+## 🛠️ Available Tools
+
+The EVM MCP Server provides these comprehensive tools:
+
+### **Token Operations**
+- `get-token-info` - ERC-20 metadata and information
+- `get-token-balance` - Token balance queries with ENS support
+- `transfer-token` - ERC-20 token transfers
+- `approve-token-spending` - Token allowance management
+
+### **NFT Operations**
+- `get-nft-info` - NFT metadata and properties
+- `check-nft-ownership` - Ownership verification
+- `transfer-nft` - NFT transfers (ERC-721)
+- `get-nft-balance` - NFT collection balances
+
+### **ERC-1155 Support**
+- `get-erc1155-token-uri` - Multi-token metadata
+- `get-erc1155-balance` - Multi-token balances
+- `transfer-erc1155` - Multi-token transfers
+
+### **Blockchain Operations**
+- `get-chain-info` - Network information and status
+- `get-balance` - Native token balances with ENS
+- `transfer-eth` - Native token transfers
+- `get-transaction` - Transaction details and receipts
+- `read-contract` - Smart contract read operations
+- `write-contract` - Smart contract write operations
+- `is-contract` - Contract address detection
+- `resolve-ens` - ENS name resolution
+
+## 🧪 Testing
+
+```bash
+# Run all tests
+bun run test
+
+# Test with different networks
+saiso config --test-network
+
+# Validate configuration
+saiso config --validate
+
+# Validate runtime policy files
+saiso policy validate
+```
+
+## 💳 Premium Paid Probe Pack
+
+Enable paid premium tool probes entirely from env vars:
+
+```bash
+SAISO_PREMIUM_PROBE=true
+SAISO_PREMIUM_RECIPIENT=pay.example
+SAISO_PREMIUM_PROTOCOL=auto
+SAISO_PREMIUM_AMOUNT_USD=0.2
+X402_PAYMENT_CREDENTIAL_JSON='{"x-payment":"..."}'
+MPP_PAYMENT_CREDENTIAL_JSON='{"Payment":"..."}'
+```
+
+When enabled, the template attempts a premium tool pack (`premium-simulate`, `premium-market-intel`, `premium-route-optimize`) with payment-aware challenge/retry logic.
+
+## 📦 Adding Features
+
+Add pre-built features to your agent:
+
+```bash
+# List available features
+saiso add --list
+
+# Reliability and execution baseline
+saiso add preflight_risk_checks
+saiso add tx_lifecycle_manager
+saiso add quote_and_swap
+
+# Privy EVM stack
+saiso add privy_client_base
+saiso add privy_wallet_lifecycle
+saiso add privy_transfer
+saiso add privy_signing_evm
+saiso add privy_advanced_execution_evm
+```
+
+## 🔧 EVM-Specific Configuration
+
+### Environment Variables
+
+```bash
+# EVM MCP Server
+MCP_SERVER_TYPE=evm
+MCP_SERVER_MODE=npx
+MCP_SERVER_PORT=3001
+
+# EVM Features
+EVM_NATIVE_CURRENCY={{nativeCurrency}}
+ENABLE_ENS=true
+ENABLE_NFT_SUPPORT=true
+ENABLE_MULTI_TOKEN=true
+
+# Advanced features
+MEV_PROTECTION=true
+EIP1559_SUPPORT=true
+```
+
+### Privy Variables (EVM features)
+
+```bash
+PRIVY_APP_ID=your_privy_app_id
+PRIVY_APP_SECRET=your_privy_app_secret
+
+# Optional
+PRIVY_BASE_URL=https://api.privy.io/v1
+PRIVY_REQUEST_TIMEOUT_MS=30000
+PRIVY_REQUEST_EXPIRY_MS=120000
+PRIVY_RETRY_MAX_ATTEMPTS=3
+PRIVY_RETRY_BASE_DELAY_MS=200
+```
+
+### Recommended Privy Install Sequence (EVM)
+
+1. `privy_client_base`
+2. `privy_wallet_lifecycle`
+3. `privy_balance_and_history`
+4. `privy_transfer`
+5. `privy_signing_evm`
+6. `privy_actions_swap`
+7. `privy_policy_controls`
+8. `privy_intents_router`
+9. `privy_webhook_ingest`
+10. `privy_accounts`
+11. `privy_advanced_execution_evm`
+
+### Advanced Features
+
+The EVM server provides:
+- **ENS Resolution**: Human-readable addresses (`vitalik.eth`)
+- **NFT Support**: Full ERC-721 and ERC-1155 support
+- **Multi-Token**: Support for various token standards
+- **Gas Optimization**: EIP-1559 and MEV protection
+- **Cross-Chain**: Seamless multi-network operations
+
+## 🛡️ Security
+
+- Never commit your `.env` file to version control
+- Use testnet for development and testing
+- Always verify transaction details before confirming
+- Keep your private keys secure and backed up
+- Be cautious with mainnet operations
+
+## 📚 Documentation
+
+- [SAISO Documentation](https://github.com/bhiktor/saiso)
+- [EVM MCP Server](https://github.com/mcpdotdirect/evm-mcp-server)
+- [Ethereum Documentation](https://ethereum.org/developers)
+- [Privy Feature Pack](https://github.com/bhiktor/saiso/blob/main/docs/privy-feature-pack.md)
+
+## 🆚 EVM vs SVM Server
+
+**Choose EVM Server when:**
+- Multi-chain EVM applications (30+ networks)
+- Need ENS resolution and EVM-native tooling
+- Working with ERC token/NFT standards
+- Building broad DeFi integrations
+
+**Choose SVM Server when:**
+- Building Solana/SVM-native agent flows
+- Optimizing for high-throughput, low-latency execution
+- Working with SPL token ecosystems
+
+## 🌟 Use Cases
+
+Perfect for:
+- **Multi-chain DeFi agents**
+- **NFT trading bots**
+- **Cross-chain portfolio managers**
+- **ENS-enabled applications**
+- **Token analysis tools**
+- **Blockchain monitoring systems**
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
+
+## 📄 License
+
+MIT License - see LICENSE file for details.
+
+---
+
+Built with ❤️ using SAISO toolkit and EVM MCP Server.

@@ -1,0 +1,60 @@
+{
+  "name": "@saiso/monorepo",
+  "version": "1.0.0-rc2",
+  "private": true,
+  "description": "A developer-first toolkit for building, testing, and deploying blockchain-integrated LLM agents using ElizaOS across EVM and SVM",
+  "keywords": ["eliza", "blockchain", "agent", "cli", "mcp", "evm", "svm"],
+  "homepage": "https://github.com/bhiktor/saiso#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bhiktor/saiso.git"
+  },
+  "license": "MIT",
+  "author": "saiso Team",
+  "workspaces": [
+    "packages/saiso-core",
+    "packages/saiso-cli",
+    "packages/saiso-plugin-sdk",
+    "packages/heretic-saiso",
+    "packages/heretic-saiso-runtime",
+    "packages/heretic-saiso-protocol-client",
+    "packages/saiso-svm-mcp-server"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "test": "turbo run test",
+    "smoke:staging:payments": "node spec/saiso-v1.0/scripts/smoke-x402-mpp.mjs",
+    "smoke:docker:localnet": "node scripts/docker-localnet-smoke.mjs",
+    "smoke:staging:paid-live:validate": "node spec/saiso-v1.0/scripts/validate-live-paid-env.mjs",
+    "smoke:staging:paid-live": "node spec/saiso-v1.0/scripts/smoke-paid-live.mjs",
+    "smoke:templates:live": "node scripts/live-template-smoke.mjs",
+    "release:validate": "node scripts/release/validate-release.mjs",
+    "release:prepare-cli-publish": "node scripts/release/prepare-cli-publish.mjs",
+    "release:smoke-pack": "node scripts/release/smoke-pack-install.mjs",
+    "release:validate-rc": "node scripts/release/validate-rc.mjs",
+    "release:post-rc-verify": "node scripts/release/post-rc-verify.mjs",
+    "templates:sync": "npm --workspace packages/saiso-cli run sync-templates",
+    "templates:check-sync": "diff -rq templates packages/saiso-cli/templates",
+    "templates:check-integrity": "node scripts/validate-template-features.mjs",
+    "templates:regression": "node scripts/generated-template-regression.mjs",
+    "perf:bench": "node scripts/bench/run-bench.mjs",
+    "lint": "turbo run lint",
+    "clean": "turbo run clean",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "precommit": "lint-staged"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "lerna": "^8.0.0",
+    "prettier": "^3.0.0",
+    "turbo": "^2.0.0",
+    "typescript": "^5.0.0",
+    "lint-staged": "^15.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "bun": ">=1.0.0"
+  },
+  "packageManager": "bun@1.0.0"
+}

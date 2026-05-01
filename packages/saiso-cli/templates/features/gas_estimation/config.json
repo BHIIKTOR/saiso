@@ -1,0 +1,123 @@
+{
+  "name": "gas_estimation",
+  "displayName": "Gas Estimation",
+  "description": "Advanced EVM gas estimation with MEV protection, network optimization, and comprehensive cost prediction for all transaction types",
+  "version": "1.0.0",
+  "category": "network",
+  "serverType": "evm",
+  "dependencies": {
+    "ethers": "^6.0.0"
+  },
+  "files": [
+    {
+      "source": "action.ts",
+      "destination": "src/actions/gasEstimation.ts"
+    },
+    {
+      "source": "test.ts",
+      "destination": "src/tests/gasEstimation.test.ts"
+    },
+    {
+      "source": "README.md",
+      "destination": "docs/features/gas_estimation.md"
+    }
+  ],
+  "integration": {
+    "actions": ["gasEstimationAction"],
+    "imports": [
+      "import { gasEstimationAction } from './actions/gasEstimation.js';"
+    ]
+  },
+  "environment": {
+    "required": [
+      "RPC_URL"
+    ],
+    "optional": [
+      "GAS_PRICE_API_KEY",
+      "GAS_PRICE_API_URL",
+      "GAS_PRICE_USD_FALLBACK",
+      "ETH_PRICE_API_URL",
+      "ETH_PRICE_USD_FALLBACK",
+      "MEV_PROTECTION_ENABLED"
+    ]
+  },
+  "features": {
+    "eip1559": true,
+    "fallbackGas": true,
+    "mevProtection": true,
+    "networkOptimization": true,
+    "costCalculation": true,
+    "batchOptimization": true,
+    "congestionAnalysis": true,
+    "timeBasedPrediction": true
+  },
+  "parameters": {
+    "speed": {
+      "type": "enum",
+      "values": ["slow", "standard", "fast", "instant"],
+      "default": "standard",
+      "description": "Gas price speed preference"
+    },
+    "multiplier": {
+      "type": "number",
+      "range": [0.1, 5.0],
+      "default": 1.0,
+      "description": "Gas price multiplier for custom optimization"
+    },
+    "maxFeePerGas": {
+      "type": "string",
+      "optional": true,
+      "description": "EIP-1559 maximum fee per gas override (in gwei)"
+    },
+    "maxPriorityFeePerGas": {
+      "type": "string",
+      "optional": true,
+      "description": "EIP-1559 priority fee per gas override (in gwei)"
+    },
+    "gasLimit": {
+      "type": "number",
+      "optional": true,
+      "description": "Custom gas limit override"
+    },
+    "mevProtection": {
+      "type": "boolean",
+      "default": false,
+      "description": "Enable MEV protection strategies"
+    },
+    "includeUsdPrice": {
+      "type": "boolean",
+      "default": true,
+      "description": "Include USD cost estimation"
+    }
+  },
+  "networkSupport": {
+    "sepolia": {
+      "testnet": true,
+      "devnet": false,
+      "mainnet": false,
+      "features": ["eip1559", "testnet"]
+    },
+    "ethereum": {
+      "testnet": true,
+      "mainnet": true,
+      "features": ["eip1559", "mevProtection"]
+    },
+    "polygon": {
+      "testnet": true,
+      "mainnet": true,
+      "features": ["eip1559", "lowCost"]
+    },
+    "arbitrum": {
+      "testnet": true,
+      "mainnet": true,
+      "features": ["eip1559", "l2Optimization"]
+    }
+  },
+  "examples": [
+    "Estimate gas for sending 1 ETH to 0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b5",
+    "Get fast gas price for contract interaction with MEV protection",
+    "Calculate gas cost for token transfer with custom multiplier 1.5",
+    "Estimate batch transaction gas with optimization",
+    "Get instant gas price with USD cost calculation"
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "name": "portfolio_state_and_pnl",
+  "displayName": "Portfolio State and PnL",
+  "description": "Snapshot balances, allocations, and PnL state",
+  "version": "1.0.0",
+  "category": "analytics",
+  "dependencies": {},
+  "files": [
+    {
+      "source": "action.ts",
+      "destination": "src/actions/portfolioStatePnl.ts"
+    },
+    {
+      "source": "test.ts",
+      "destination": "src/tests/portfolioStatePnl.test.ts"
+    },
+    {
+      "source": "README.md",
+      "destination": "docs/features/portfolio_state_and_pnl.md"
+    }
+  ],
+  "integration": {
+    "actions": ["portfolioStatePnlAction"],
+    "imports": [
+      "import { portfolioStatePnlAction } from './actions/portfolioStatePnl.js';"
+    ]
+  },
+  "environment": {
+    "required": [],
+    "optional": [
+      "PRIVY_APP_ID",
+      "PRIVY_APP_SECRET"
+    ]
+  },
+  "features": {
+    "workflowParity": true,
+    "chainAgnostic": true,
+    "productionScaffold": true
+  },
+  "examples": [
+    "Run portfolio_state_and_pnl in dry-run mode",
+    "Execute portfolio_state_and_pnl for EVM and SVM"
+  ]
+}

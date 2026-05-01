@@ -1,0 +1,11 @@
+{
+  "enabled": true,
+  "preferredProtocol": "auto",
+  "maxPerRequestUsd": 5,
+  "dailyBudgetUsd": 50,
+  "operationClassMinTrustScore": {
+    "read": 0.4,
+    "write": 0.65,
+    "high-risk": 0.8
+  }
+}

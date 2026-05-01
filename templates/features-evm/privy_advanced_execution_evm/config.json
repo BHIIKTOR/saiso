@@ -1,0 +1,50 @@
+{
+  "name": "privy_advanced_execution_evm",
+  "displayName": "Privy Advanced Execution (EVM Adapter)",
+  "description": "Run advanced EVM Privy execution methods",
+  "version": "1.0.0",
+  "category": "privy",
+  "serverType": "evm",
+  "dependencies": {},
+  "files": [
+    {
+      "source": "action.ts",
+      "destination": "src/actions/privyAdvancedExecutionEvm.ts"
+    },
+    {
+      "source": "test.ts",
+      "destination": "src/tests/privyAdvancedExecutionEvm.test.ts"
+    },
+    {
+      "source": "README.md",
+      "destination": "docs/features/privy_advanced_execution_evm.md"
+    }
+  ],
+  "integration": {
+    "actions": ["privyAdvancedExecutionEvmAction"],
+    "imports": [
+      "import { privyAdvancedExecutionEvmAction } from './actions/privyAdvancedExecutionEvm.js';"
+    ]
+  },
+  "environment": {
+    "required": [
+      "PRIVY_APP_ID",
+      "PRIVY_APP_SECRET"
+    ],
+    "optional": [
+      "PRIVY_BASE_URL",
+      "PRIVY_REQUEST_TIMEOUT_MS",
+      "PRIVY_REQUEST_EXPIRY_MS",
+      "PRIVY_RETRY_MAX_ATTEMPTS",
+      "PRIVY_RETRY_BASE_DELAY_MS"
+    ]
+  },
+  "features": {
+    "serverSpecific": true,
+    "adapter": "evm",
+    "privyBacked": true
+  },
+  "examples": [
+    "Run privy_advanced_execution_evm in a EVM project"
+  ]
+}

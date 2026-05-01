@@ -1,0 +1,17 @@
+{
+  "perps": {
+    "maxNotionalUsd": 800,
+    "maxLeverage": 3,
+    "minFundingEdgeBps": 8,
+    "maxConcurrentPositions": 2
+  },
+  "risk": {
+    "maxDailyLossUsd": 150,
+    "liquidationDistanceBufferPct": 25,
+    "cooldownMinutesAfterStop": 20
+  },
+  "pnl": {
+    "snapshotIntervalSeconds": 180,
+    "reportCron": "*/10 * * * *"
+  }
+}

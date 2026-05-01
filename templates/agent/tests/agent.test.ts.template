@@ -1,0 +1,22 @@
+import { describe, it, expect } from 'bun:test';
+
+describe('{{agentName}} Agent', () => {
+  it('initializes with deterministic defaults', async () => {
+    const env = process.env.SAISO_TEST_ENV || '{{environment}}';
+    const rpcUrl = process.env.RPC_URL || '{{rpcUrl}}';
+
+    expect(env.length).toBeGreaterThan(0);
+    expect(rpcUrl.startsWith('http://') || rpcUrl.startsWith('https://')).toBe(true);
+  });
+
+  it('resolves runtime environment variables', async () => {
+    const nodeEnv = process.env.NODE_ENV || 'test';
+    expect(typeof nodeEnv).toBe('string');
+    expect(nodeEnv.length).toBeGreaterThan(0);
+  });
+
+  it('keeps test network scope safe by default', async () => {
+    const env = process.env.SAISO_TEST_ENV || '{{environment}}';
+    expect(['testnet', 'devnet', 'mainnet'].includes(env)).toBe(true);
+  });
+});

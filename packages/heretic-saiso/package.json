@@ -1,0 +1,45 @@
+{
+  "name": "@saiso/heretic-saiso",
+  "version": "1.0.0-rc2",
+  "description": "Heretic daemon integration plugin for SAISO",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./plugin-entry": {
+      "import": "./dist/plugin-entry.js",
+      "types": "./dist/plugin-entry.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc && bun build ./dist/plugin-entry.js --outfile ./dist/plugin-entry.bundle.js --target node --format esm",
+    "dev": "tsc --watch",
+    "test": "bun test",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@saiso/heretic-saiso-protocol-client": "workspace:*",
+    "@saiso/heretic-saiso-runtime": "workspace:*",
+    "@saiso/core": "workspace:*",
+    "@saiso/plugin-sdk": "workspace:*",
+    "commander": "^12.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "files": [
+    "dist/**/*",
+    "saiso-plugin.json"
+  ],
+  "engines": {
+    "node": ">=18.0.0",
+    "bun": ">=1.0.0"
+  },
+  "license": "MIT"
+}

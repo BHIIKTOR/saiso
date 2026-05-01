@@ -1,0 +1,18 @@
+{
+  "marketMaking": {
+    "symbol": "ETH/USDC",
+    "maxNotionalUsdPerOrder": 500,
+    "maxInventoryUsd": 2000,
+    "targetSpreadBps": 25,
+    "minSpreadBps": 15,
+    "maxOrdersPerMinute": 10
+  },
+  "risk": {
+    "maxDailyLossUsd": 120,
+    "pauseOnDrawdownPct": 10
+  },
+  "reporting": {
+    "pnlIntervalSeconds": 300,
+    "summaryCron": "*/10 * * * *"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "name": "event_ingest_and_triggers",
+  "displayName": "Event Ingest and Triggers",
+  "description": "Ingest events and trigger deterministic action hooks",
+  "version": "1.0.0",
+  "category": "automation",
+  "dependencies": {},
+  "files": [
+    {
+      "source": "action.ts",
+      "destination": "src/actions/eventIngestTriggers.ts"
+    },
+    {
+      "source": "test.ts",
+      "destination": "src/tests/eventIngestTriggers.test.ts"
+    },
+    {
+      "source": "README.md",
+      "destination": "docs/features/event_ingest_and_triggers.md"
+    }
+  ],
+  "integration": {
+    "actions": ["eventIngestTriggersAction"],
+    "imports": [
+      "import { eventIngestTriggersAction } from './actions/eventIngestTriggers.js';"
+    ]
+  },
+  "environment": {
+    "required": [],
+    "optional": [
+      "PRIVY_APP_ID",
+      "PRIVY_APP_SECRET"
+    ]
+  },
+  "features": {
+    "workflowParity": true,
+    "chainAgnostic": true,
+    "productionScaffold": true
+  },
+  "examples": [
+    "Run event_ingest_and_triggers in dry-run mode",
+    "Execute event_ingest_and_triggers for EVM and SVM"
+  ]
+}

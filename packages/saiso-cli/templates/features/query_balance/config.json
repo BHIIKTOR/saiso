@@ -1,0 +1,38 @@
+{
+  "name": "query_balance",
+  "displayName": "Query Balance",
+  "description": "Query ETH and ERC-20 token balances for any address",
+  "version": "1.0.0",
+  "category": "defi",
+  "serverType": "evm",
+  "dependencies": {
+    "ethers": "^6.0.0"
+  },
+  "files": [
+    {
+      "source": "action.ts",
+      "destination": "src/actions/queryBalance.ts"
+    },
+    {
+      "source": "README.md",
+      "destination": "docs/features/query_balance.md"
+    }
+  ],
+  "integration": {
+    "actions": ["queryBalanceAction"],
+    "imports": [
+      "import { queryBalanceAction } from './actions/queryBalance.js';"
+    ]
+  },
+  "environment": {
+    "required": [],
+    "optional": [
+      "RPC_URL"
+    ]
+  },
+  "examples": [
+    "What is my ETH balance?",
+    "Check the balance of 0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b5",
+    "What is the USDC balance for that address?"
+  ]
+}

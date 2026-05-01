@@ -1,0 +1,51 @@
+{
+  "name": "privy_webhook_ingest",
+  "displayName": "Privy Webhook Ingest",
+  "description": "Ingest and verify Privy webhook event payloads",
+  "version": "1.0.0",
+  "category": "privy",
+  "dependencies": {},
+  "files": [
+    {
+      "source": "action.ts",
+      "destination": "src/actions/privyWebhookIngest.ts"
+    },
+    {
+      "source": "test.ts",
+      "destination": "src/tests/privyWebhookIngest.test.ts"
+    },
+    {
+      "source": "README.md",
+      "destination": "docs/features/privy_webhook_ingest.md"
+    }
+  ],
+  "integration": {
+    "actions": ["privyWebhookIngestAction"],
+    "imports": [
+      "import { privyWebhookIngestAction } from './actions/privyWebhookIngest.js';"
+    ]
+  },
+  "environment": {
+    "required": [
+      "PRIVY_APP_ID",
+      "PRIVY_APP_SECRET"
+    ],
+    "optional": [
+      "PRIVY_BASE_URL",
+      "PRIVY_REQUEST_TIMEOUT_MS",
+      "PRIVY_REQUEST_EXPIRY_MS",
+      "PRIVY_RETRY_MAX_ATTEMPTS",
+      "PRIVY_RETRY_BASE_DELAY_MS",
+      "PRIVY_DEFAULT_WALLET_ID"
+    ]
+  },
+  "features": {
+    "workflowParity": true,
+    "chainAgnostic": true,
+    "privyBacked": true
+  },
+  "examples": [
+    "Run privy_webhook_ingest for an EVM wallet",
+    "Run privy_webhook_ingest for an SVM wallet"
+  ]
+}

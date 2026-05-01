@@ -1,0 +1,43 @@
+{
+  "name": "local_strategy_test_harness",
+  "displayName": "Local Strategy Test Harness (EVM Adapter)",
+  "description": "Run deterministic local strategy scenarios (EVM-specific adapter)",
+  "version": "1.0.0",
+  "category": "execution",
+  "serverType": "evm",
+  "dependencies": {},
+  "files": [
+    {
+      "source": "action.ts",
+      "destination": "src/actions/localStrategyTestHarness.ts"
+    },
+    {
+      "source": "test.ts",
+      "destination": "src/tests/localStrategyTestHarness.test.ts"
+    },
+    {
+      "source": "README.md",
+      "destination": "docs/features/local_strategy_test_harness.md"
+    }
+  ],
+  "integration": {
+    "actions": ["localStrategyTestHarnessAction"],
+    "imports": [
+      "import { localStrategyTestHarnessAction } from './actions/localStrategyTestHarness.js';"
+    ]
+  },
+  "environment": {
+    "required": [],
+    "optional": [
+      "CHAIN_ID",
+      "RPC_URL"
+    ]
+  },
+  "features": {
+    "serverSpecific": true,
+    "adapter": "evm"
+  },
+  "examples": [
+    "Run local_strategy_test_harness with EVM adapter"
+  ]
+}

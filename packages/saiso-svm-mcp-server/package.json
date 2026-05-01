@@ -1,0 +1,47 @@
+{
+  "name": "@saiso/svm-mcp-server",
+  "version": "1.0.0-rc2",
+  "description": "First-party SAISO SVM MCP server with canonical parity operations",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "saiso-svm-mcp-server": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "bun test",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@solana/web3.js": "^1.98.4",
+    "@solana/spl-token": "^0.4.14",
+    "bs58": "^6.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "files": [
+    "dist/**/*"
+  ],
+  "engines": {
+    "node": ">=18.0.0",
+    "bun": ">=1.0.0"
+  },
+  "keywords": [
+    "saiso",
+    "svm",
+    "solana",
+    "mcp",
+    "agent"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bhiktor/saiso.git",
+    "directory": "packages/saiso-svm-mcp-server"
+  }
+}

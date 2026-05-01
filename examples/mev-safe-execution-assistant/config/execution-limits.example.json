@@ -1,0 +1,12 @@
+{
+  "execution": {
+    "maxNotionalUsdPerTrade": 300,
+    "maxSlippageBps": 25,
+    "requireSimulation": true,
+    "maxRetries": 2
+  },
+  "risk": {
+    "maxDailyLossUsd": 80,
+    "maxFailureRatePct": 20
+  }
+}

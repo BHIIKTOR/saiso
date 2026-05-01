@@ -1,0 +1,27 @@
+{
+  "strategy": {
+    "maxNotionalUsdPerTrade": 250,
+    "maxSlippageBps": 35,
+    "minEdgeBps": 20,
+    "maxConcurrentRoutes": 3,
+    "dailyMaxLossUsd": 100,
+    "dailyTargetProfitUsd": 120,
+    "maxExposureUsd": 1200
+  },
+  "yield": {
+    "enabled": true,
+    "maxAllocationPct": 40,
+    "rebalanceThresholdPct": 7,
+    "withdrawOnDrawdownPct": 8
+  },
+  "pnl": {
+    "snapshotIntervalSeconds": 300,
+    "reportCron": "*/15 * * * *",
+    "includeUnrealized": true
+  },
+  "telegram": {
+    "allowManualRebalance": true,
+    "allowPauseResume": true,
+    "adminOnlyCommands": true
+  }
+}

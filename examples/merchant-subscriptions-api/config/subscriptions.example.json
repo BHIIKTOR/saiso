@@ -1,0 +1,31 @@
+{
+  "plans": [
+    {
+      "id": "starter",
+      "amountUsd": 10,
+      "intervalDays": 30,
+      "gracePeriodDays": 3
+    },
+    {
+      "id": "pro",
+      "amountUsd": 49,
+      "intervalDays": 30,
+      "gracePeriodDays": 5
+    }
+  ],
+  "billing": {
+    "maxFailedAttempts": 3,
+    "retryWindowDays": 7,
+    "chargeJitterSeconds": 120
+  },
+  "entitlements": {
+    "starter": [
+      "api.basic"
+    ],
+    "pro": [
+      "api.basic",
+      "api.premium",
+      "api.priority"
+    ]
+  }
+}

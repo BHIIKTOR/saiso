@@ -1,0 +1,42 @@
+name: Live Template Smoke
+
+on:
+  workflow_dispatch:
+    inputs:
+      fail_on_skipped_credential:
+        description: Fail when 0x or Privy credentials are not configured
+        required: false
+        default: true
+        type: boolean
+  schedule:
+    - cron: '17 8 * * *'
+
+jobs:
+  live-template-smoke:
+    name: Live Template Provider Checks
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: oven-sh/setup-bun@v1
+
+    - name: Install dependencies
+      run: bun install
+
+    - name: Run live template smoke checks
+      env:
+        ZEROX_API_KEY: ${{ secrets.ZEROX_API_KEY }}
+        ZEROX_SWAP_API_BASE: ${{ vars.ZEROX_SWAP_API_BASE }}
+        JUPITER_QUOTE_API_BASE: ${{ vars.JUPITER_QUOTE_API_BASE }}
+        PRIVY_APP_ID: ${{ secrets.PRIVY_APP_ID }}
+        PRIVY_APP_SECRET: ${{ secrets.PRIVY_APP_SECRET }}
+        PRIVY_BASE_URL: ${{ vars.PRIVY_BASE_URL }}
+        PRIVY_LIVE_WALLET_ID: ${{ secrets.PRIVY_LIVE_WALLET_ID }}
+        RPC_URL: ${{ secrets.RPC_URL }}
+        CHAIN_ID: ${{ vars.CHAIN_ID }}
+      run: |
+        FLAGS=""
+        if [[ "${{ github.event_name }}" == "schedule" || "${{ inputs.fail_on_skipped_credential }}" == "true" ]]; then
+          FLAGS="-- --fail-on-skipped-credential"
+        fi
+        npm run smoke:templates:live $FLAGS
