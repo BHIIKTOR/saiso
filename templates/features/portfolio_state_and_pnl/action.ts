@@ -51,11 +51,11 @@ export const portfolioStatePnlAction: Action = {
     if (callback) {
       callback({
         text: '[portfolio_state_and_pnl] completed for ' + chainFamily + ' (dryRun=' + String(response.data.dryRun) + ')',
-        content: response,
+        content: response as any,
       });
     }
 
-    return response;
+    return response as any;
   },
   examples: [
     [

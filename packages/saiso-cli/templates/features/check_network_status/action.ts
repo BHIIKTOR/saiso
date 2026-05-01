@@ -421,5 +421,5 @@ function formatNetworkStatusResponse(status: NetworkStatus): string {
     response += `🔴 Network issues detected. Please check configuration and connectivity.`;
   }
 
-  return response;
+  return response as any;
 }

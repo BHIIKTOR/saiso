@@ -57,11 +57,11 @@ export const privyIntentsRouterAction: Action = {
     if (callback) {
       callback({
         text: '[privy_intents_router] completed for ' + chainFamily,
-        content: response,
+        content: response as any,
       });
     }
 
-    return response;
+    return response as any;
   },
   examples: [
     [

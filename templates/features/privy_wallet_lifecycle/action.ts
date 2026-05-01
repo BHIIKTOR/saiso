@@ -93,8 +93,8 @@ export const privyWalletLifecycleAction: Action = {
         data: { operation, walletId, walletAddress: content.walletAddress, network: content.network, result },
         meta: { idempotencyKey, expiresAt, latencyMs: Date.now() - startedAt },
       };
-      if (callback) callback({ text: '[privy_wallet_lifecycle] Privy wallet operation completed', content: response });
-      return response;
+      if (callback) callback({ text: '[privy_wallet_lifecycle] Privy wallet operation completed', content: response as any });
+      return response as any;
     } catch (error) {
       const response = {
         success: false,
@@ -104,8 +104,8 @@ export const privyWalletLifecycleAction: Action = {
         error: { code: 'privy_wallet_lifecycle_failed', message: error instanceof Error ? error.message : String(error) },
         meta: { idempotencyKey, expiresAt, latencyMs: Date.now() - startedAt },
       };
-      if (callback) callback({ text: '[privy_wallet_lifecycle] Privy wallet operation failed', content: response });
-      return response;
+      if (callback) callback({ text: '[privy_wallet_lifecycle] Privy wallet operation failed', content: response as any });
+      return response as any;
     }
   },
   examples: [] as ActionExample[][],

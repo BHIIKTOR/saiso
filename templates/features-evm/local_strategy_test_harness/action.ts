@@ -38,11 +38,11 @@ export const localStrategyTestHarnessAction: Action = {
     if (callback) {
       callback({
         text: '[local_strategy_test_harness] EVM adapter path selected',
-        content: response,
+        content: response as any,
       });
     }
 
-    return response;
+    return response as any;
   },
   examples: [],
 };

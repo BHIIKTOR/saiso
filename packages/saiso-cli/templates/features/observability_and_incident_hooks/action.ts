@@ -51,11 +51,11 @@ export const observabilityIncidentHooksAction: Action = {
     if (callback) {
       callback({
         text: '[observability_and_incident_hooks] completed for ' + chainFamily + ' (dryRun=' + String(response.data.dryRun) + ')',
-        content: response,
+        content: response as any,
       });
     }
 
-    return response;
+    return response as any;
   },
   examples: [
     [

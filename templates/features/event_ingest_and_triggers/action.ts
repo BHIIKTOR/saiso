@@ -51,11 +51,11 @@ export const eventIngestTriggersAction: Action = {
     if (callback) {
       callback({
         text: '[event_ingest_and_triggers] completed for ' + chainFamily + ' (dryRun=' + String(response.data.dryRun) + ')',
-        content: response,
+        content: response as any,
       });
     }
 
-    return response;
+    return response as any;
   },
   examples: [
     [

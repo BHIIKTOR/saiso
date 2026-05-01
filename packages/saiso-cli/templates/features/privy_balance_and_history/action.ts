@@ -77,8 +77,8 @@ export const privyBalanceAndHistoryAction: Action = {
         data: { operation, walletId, network: content.network, result },
         meta: { latencyMs: Date.now() - startedAt },
       };
-      if (callback) callback({ text: '[privy_balance_and_history] Privy wallet data retrieved', content: response });
-      return response;
+      if (callback) callback({ text: '[privy_balance_and_history] Privy wallet data retrieved', content: response as any });
+      return response as any;
     } catch (error) {
       const response = {
         success: false,
@@ -88,8 +88,8 @@ export const privyBalanceAndHistoryAction: Action = {
         error: { code: 'privy_balance_history_failed', message: error instanceof Error ? error.message : String(error) },
         meta: { latencyMs: Date.now() - startedAt },
       };
-      if (callback) callback({ text: '[privy_balance_and_history] Privy wallet data retrieval failed', content: response });
-      return response;
+      if (callback) callback({ text: '[privy_balance_and_history] Privy wallet data retrieval failed', content: response as any });
+      return response as any;
     }
   },
   examples: [] as ActionExample[][],

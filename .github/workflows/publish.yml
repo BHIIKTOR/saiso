@@ -8,7 +8,7 @@ on:
         required: true
         type: string
       dist_tag:
-        description: npm dist-tag (latest, next, rc)
+        description: npm dist-tag (use latest when package README pages must update)
         required: false
         default: latest
         type: string
@@ -62,6 +62,16 @@ jobs:
             FLAGS="--fail-on-skipped-credential"
           fi
           npm run release:validate-rc -- --version "${{ inputs.version }}" $FLAGS
+
+      - name: Validate publish inputs
+        run: |
+          case "${{ inputs.dist_tag }}" in
+            latest|rc|next) ;;
+            *)
+              echo "Unsupported dist_tag: ${{ inputs.dist_tag }}"
+              exit 1
+              ;;
+          esac
 
   publish-core:
     name: Publish @saiso/core
@@ -218,6 +228,20 @@ jobs:
           echo "Timed out waiting for @saiso/plugin-sdk@${{ inputs.version }} in npm."
           exit 1
 
+      - name: Wait for @saiso/svm-mcp-server release visibility
+        if: ${{ inputs.dry_run == false }}
+        run: |
+          for attempt in $(seq 1 20); do
+            if npm view "@saiso/svm-mcp-server@${{ inputs.version }}" version >/dev/null 2>&1; then
+              echo "@saiso/svm-mcp-server@${{ inputs.version }} is visible in npm."
+              exit 0
+            fi
+            echo "Waiting for npm index propagation (attempt $attempt/20)..."
+            sleep 15
+          done
+          echo "Timed out waiting for @saiso/svm-mcp-server@${{ inputs.version }} in npm."
+          exit 1
+
       - name: Publish CLI package
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -229,3 +253,28 @@ jobs:
           else
             npm publish $PUBLISH_FLAGS
           fi
+
+  verify-published:
+    name: Verify Published npm Release
+    needs: publish-cli
+    if: ${{ inputs.dry_run == false }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+
+      - uses: oven-sh/setup-bun@v1
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Verify npm dist-tags and README metadata
+        run: npm run release:verify-npm -- --version "${{ inputs.version }}" --dist-tag "${{ inputs.dist_tag }}"
+
+      - name: Run clean published install journey
+        run: npm run release:post-rc-verify -- --version "${{ inputs.version }}"

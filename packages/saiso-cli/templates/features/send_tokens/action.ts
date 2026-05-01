@@ -172,11 +172,11 @@ export const sendTokensAction: Action = {
       if (callback) {
         callback({
           text: `Successfully sent ${content.amount} ${tokenSymbol} to ${content.recipient}. Transaction: ${txHash}`,
-          content: response
+          content: response as any
         });
       }
 
-      return response;
+      return response as any;
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';

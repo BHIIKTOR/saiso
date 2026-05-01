@@ -101,9 +101,9 @@ export const quoteAndSwapAction: Action = {
         },
       };
       if (callback) {
-        callback({ text: '[quote_and_swap] SVM quote ready', content: response });
+        callback({ text: '[quote_and_swap] SVM quote ready', content: response as any });
       }
-      return response;
+      return response as any;
     } catch (error) {
       const response = {
         success: false,
@@ -119,9 +119,9 @@ export const quoteAndSwapAction: Action = {
         },
       };
       if (callback) {
-        callback({ text: '[quote_and_swap] SVM quote failed', content: response });
+        callback({ text: '[quote_and_swap] SVM quote failed', content: response as any });
       }
-      return response;
+      return response as any;
     }
   },
   examples: [],

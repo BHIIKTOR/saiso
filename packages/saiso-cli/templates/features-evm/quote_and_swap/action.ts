@@ -108,9 +108,9 @@ export const quoteAndSwapAction: Action = {
       if (provider !== 'custom' && isHostedZeroExUrl(baseUrl) && !apiKey) {
         const response = authRequiredResponse(requestId, startedAt);
         if (callback) {
-          callback({ text: '[quote_and_swap] EVM quote provider auth required', content: response });
+          callback({ text: '[quote_and_swap] EVM quote provider auth required', content: response as any });
         }
-        return response;
+        return response as any;
       }
       const endpoint = content.execute === true || content.dryRun === false ? 'quote' : 'price';
       const url = `${baseUrl.replace(/\/$/, '')}/${endpoint}?${toQuery({
@@ -159,9 +159,9 @@ export const quoteAndSwapAction: Action = {
       };
 
       if (callback) {
-        callback({ text: '[quote_and_swap] EVM quote ready', content: response });
+        callback({ text: '[quote_and_swap] EVM quote ready', content: response as any });
       }
-      return response;
+      return response as any;
     } catch (error) {
       const response = {
         success: false,
@@ -177,9 +177,9 @@ export const quoteAndSwapAction: Action = {
         },
       };
       if (callback) {
-        callback({ text: '[quote_and_swap] EVM quote failed', content: response });
+        callback({ text: '[quote_and_swap] EVM quote failed', content: response as any });
       }
-      return response;
+      return response as any;
     }
   },
   examples: [],

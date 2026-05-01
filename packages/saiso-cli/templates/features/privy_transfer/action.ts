@@ -88,8 +88,8 @@ export const privyTransferAction: Action = {
         data: { walletId, network: content.network, result },
         meta: { idempotencyKey, expiresAt, latencyMs: Date.now() - startedAt },
       };
-      if (callback) callback({ text: '[privy_transfer] Privy transfer submitted', content: response });
-      return response;
+      if (callback) callback({ text: '[privy_transfer] Privy transfer submitted', content: response as any });
+      return response as any;
     } catch (error) {
       const response = {
         success: false,
@@ -99,8 +99,8 @@ export const privyTransferAction: Action = {
         error: { code: 'privy_transfer_failed', message: error instanceof Error ? error.message : String(error) },
         meta: { idempotencyKey, expiresAt, latencyMs: Date.now() - startedAt },
       };
-      if (callback) callback({ text: '[privy_transfer] Privy transfer failed', content: response });
-      return response;
+      if (callback) callback({ text: '[privy_transfer] Privy transfer failed', content: response as any });
+      return response as any;
     }
   },
   examples: [] as ActionExample[][],

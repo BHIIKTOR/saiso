@@ -59,6 +59,7 @@ async function main() {
 
   await run('Template feature manifest validation', 'node', ['scripts/validate-template-features.mjs']);
   await run('Template sync drift gate', 'diff', ['-rq', 'templates', 'packages/saiso-cli/templates']);
+  await run('Package README metadata validation', 'node', ['scripts/release/sync-package-readmes.mjs', '--check']);
   await run('Generated template regression', 'npm', ['run', 'templates:regression']);
   await run('Core typecheck', 'npx', ['tsc', '-p', 'packages/saiso-core/tsconfig.json', '--noEmit']);
   await run('CLI typecheck', 'npx', ['tsc', '-p', 'packages/saiso-cli/tsconfig.json', '--noEmit']);

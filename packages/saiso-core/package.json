@@ -1,6 +1,6 @@
 {
   "name": "@saiso/core",
-  "version": "1.0.0-rc5",
+  "version": "1.0.0-rc8",
   "description": "Core utilities and configuration management for SAISO - EVM-agnostic blockchain agent toolkit",
   "type": "module",
   "main": "dist/index.js",
@@ -69,6 +69,6 @@
   "bugs": {
     "url": "https://github.com/BHIIKTOR/saiso/issues"
   },
-  "readme": "# @saiso/core\n\nCore runtime, configuration, MCP orchestration, payment, identity, trust, service blueprint, and utility modules used by SAISO projects and the `@saiso/cli` package.\n\n## Install\n\n```bash\nnpm install @saiso/core@rc\n```\n\n## Repository\n\nhttps://github.com/BHIIKTOR/saiso\n",
+  "readme": "# @saiso/core\n\nCore runtime modules used by generated SAISO projects and by `@saiso/cli`.\n\n## Install\n\n```bash\nnpm install @saiso/core@rc\n```\n\n## What It Provides\n\n- configuration loading, validation, and environment helpers\n- EVM and SVM MCP orchestration primitives\n- Docker runtime helpers for local development flows\n- x402 and MPP payment parsing, policy checks, and receipt storage\n- identity and trust modules for discovery metadata and trust-aware routing\n- service blueprint utilities used by generated agents and feature templates\n\n## Usage\n\nMost users consume this package through the CLI-generated project templates:\n\n```bash\nnpm install -g @saiso/cli@rc\nsaiso new my-agent --env testnet\n```\n\nDirect package imports are intended for SAISO runtime integrations and custom template authors.\n\n## Repository\n\nhttps://github.com/BHIIKTOR/saiso\n",
   "readmeFilename": "README.md"
 }

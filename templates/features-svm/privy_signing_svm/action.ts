@@ -74,8 +74,8 @@ export const privySigningSvmAction: Action = {
         data: { adapter: 'svm', walletId, method, result },
         meta: { idempotencyKey, expiresAt, latencyMs: Date.now() - startedAt },
       };
-      if (callback) callback({ text: '[privy_signing_svm] Privy SVM signature completed', content: response });
-      return response;
+      if (callback) callback({ text: '[privy_signing_svm] Privy SVM signature completed', content: response as any });
+      return response as any;
     } catch (error) {
       const response = {
         success: false,
@@ -85,8 +85,8 @@ export const privySigningSvmAction: Action = {
         error: { code: 'privy_signing_svm_failed', message: error instanceof Error ? error.message : String(error) },
         meta: { idempotencyKey, expiresAt, latencyMs: Date.now() - startedAt },
       };
-      if (callback) callback({ text: '[privy_signing_svm] Privy SVM signature failed', content: response });
-      return response;
+      if (callback) callback({ text: '[privy_signing_svm] Privy SVM signature failed', content: response as any });
+      return response as any;
     }
   },
   examples: [] as ActionExample[][],

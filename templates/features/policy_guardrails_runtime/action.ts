@@ -150,11 +150,11 @@ export const policyGuardrailsRuntimeAction: Action = {
     if (callback) {
       callback({
         text: policy.allowed ? '[policy_guardrails_runtime] policy approved' : '[policy_guardrails_runtime] policy denied',
-        content: response,
+        content: response as any,
       });
     }
 
-    return response;
+    return response as any;
   },
   examples: [] as ActionExample[][],
 };

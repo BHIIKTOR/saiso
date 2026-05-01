@@ -51,11 +51,11 @@ export const schedulerWorkflowRunnerAction: Action = {
     if (callback) {
       callback({
         text: '[scheduler_and_workflow_runner] completed for ' + chainFamily + ' (dryRun=' + String(response.data.dryRun) + ')',
-        content: response,
+        content: response as any,
       });
     }
 
-    return response;
+    return response as any;
   },
   examples: [
     [

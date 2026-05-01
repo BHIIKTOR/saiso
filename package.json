@@ -1,6 +1,6 @@
 {
   "name": "@saiso/monorepo",
-  "version": "1.0.0-rc5",
+  "version": "1.0.0-rc8",
   "private": true,
   "description": "A developer-first toolkit for building, testing, and deploying blockchain-integrated LLM agents using ElizaOS across EVM and SVM",
   "keywords": [
@@ -38,9 +38,12 @@
     "smoke:staging:paid-live": "node spec/saiso-v1.0/scripts/smoke-paid-live.mjs",
     "smoke:templates:live": "node scripts/live-template-smoke.mjs",
     "release:validate": "node scripts/release/validate-release.mjs",
+    "release:package-readmes:sync": "node scripts/release/sync-package-readmes.mjs",
+    "release:package-readmes:check": "node scripts/release/sync-package-readmes.mjs --check",
     "release:prepare-cli-publish": "node scripts/release/prepare-cli-publish.mjs",
     "release:smoke-pack": "node scripts/release/smoke-pack-install.mjs",
     "release:validate-rc": "node scripts/release/validate-rc.mjs",
+    "release:verify-npm": "node scripts/release/verify-npm-release.mjs",
     "release:post-rc-verify": "node scripts/release/post-rc-verify.mjs",
     "templates:sync": "npm --workspace packages/saiso-cli run sync-templates",
     "templates:check-sync": "diff -rq templates packages/saiso-cli/templates",

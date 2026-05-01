@@ -27,6 +27,7 @@ export class ProjectScaffolder {
 
     // Find templates directory - try multiple locations for reliability
     const possiblePaths = [
+      path.resolve(__dirname, '../templates'),
       path.resolve(__dirname, '../../templates'),
       path.resolve(process.cwd(), 'templates'),
       path.resolve(__dirname, '../../../../templates'),
@@ -293,7 +294,7 @@ export class ProjectScaffolder {
       },
       dependencies: {
         '@elizaos/core': '^2.0.0-alpha.77',
-        '@saiso/core': '^1.0.0-rc5',
+        '@saiso/core': '^1.0.0-rc8',
         dotenv: '^16.5.0',
       },
       devDependencies: {

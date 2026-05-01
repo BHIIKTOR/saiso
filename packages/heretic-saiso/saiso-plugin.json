@@ -1,9 +1,9 @@
 {
   "manifestVersion": 1,
   "id": "heretic-saiso",
-  "version": "1.0.0-rc5",
+  "version": "1.0.0-rc8",
   "pluginApiVersion": "1.0.0",
-  "saisoRange": "^1.0.0-rc5",
+  "saisoRange": "^1.0.0-rc8",
   "entry": "dist/plugin-entry.bundle.js",
   "capabilities": [
     "heretic-daemon",

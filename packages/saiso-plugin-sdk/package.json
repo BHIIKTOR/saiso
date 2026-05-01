@@ -1,6 +1,6 @@
 {
   "name": "@saiso/plugin-sdk",
-  "version": "1.0.0-rc5",
+  "version": "1.0.0-rc8",
   "description": "Plugin SDK contracts for SAISO plugin authors",
   "type": "module",
   "main": "dist/index.js",
@@ -45,6 +45,6 @@
   "bugs": {
     "url": "https://github.com/BHIIKTOR/saiso/issues"
   },
-  "readme": "# @saiso/plugin-sdk\n\nPlugin SDK contracts for SAISO plugin authors.\n\n## Install\n\n```bash\nnpm install @saiso/plugin-sdk@rc\n```\n\n## Repository\n\nhttps://github.com/BHIIKTOR/saiso\n",
+  "readme": "# @saiso/plugin-sdk\n\nType contracts for SAISO plugin authors.\n\n## Install\n\n```bash\nnpm install @saiso/plugin-sdk@rc\n```\n\n## What It Provides\n\n- plugin manifest and capability shapes\n- runtime integration contracts\n- shared types used by first-party and third-party SAISO plugin packages\n\nUse this package when building a plugin that should be loaded by SAISO tooling or by a SAISO-compatible runtime.\n\n## Repository\n\nhttps://github.com/BHIIKTOR/saiso\n",
   "readmeFilename": "README.md"
 }

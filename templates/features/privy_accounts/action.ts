@@ -57,11 +57,11 @@ export const privyAccountsAction: Action = {
     if (callback) {
       callback({
         text: '[privy_accounts] completed for ' + chainFamily,
-        content: response,
+        content: response as any,
       });
     }
 
-    return response;
+    return response as any;
   },
   examples: [
     [

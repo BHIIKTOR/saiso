@@ -114,9 +114,9 @@ export const txLifecycleManagerAction: Action = {
       };
 
       if (callback) {
-        callback({ text: '[tx_lifecycle_manager] EVM transaction state resolved', content: response });
+        callback({ text: '[tx_lifecycle_manager] EVM transaction state resolved', content: response as any });
       }
-      return response;
+      return response as any;
     } catch (error) {
       const response = {
         success: false,
@@ -132,9 +132,9 @@ export const txLifecycleManagerAction: Action = {
         },
       };
       if (callback) {
-        callback({ text: '[tx_lifecycle_manager] EVM transaction lookup failed', content: response });
+        callback({ text: '[tx_lifecycle_manager] EVM transaction lookup failed', content: response as any });
       }
-      return response;
+      return response as any;
     }
   },
   examples: [],

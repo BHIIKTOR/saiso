@@ -57,11 +57,11 @@ export const privyWebhookIngestAction: Action = {
     if (callback) {
       callback({
         text: '[privy_webhook_ingest] completed for ' + chainFamily,
-        content: response,
+        content: response as any,
       });
     }
 
-    return response;
+    return response as any;
   },
   examples: [
     [

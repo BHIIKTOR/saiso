@@ -51,11 +51,11 @@ export const oracleMarketDataLayerAction: Action = {
     if (callback) {
       callback({
         text: '[oracle_and_market_data_layer] completed for ' + chainFamily + ' (dryRun=' + String(response.data.dryRun) + ')',
-        content: response,
+        content: response as any,
       });
     }
 
-    return response;
+    return response as any;
   },
   examples: [
     [

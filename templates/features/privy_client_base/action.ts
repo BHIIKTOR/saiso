@@ -54,11 +54,11 @@ export const privyClientBaseAction: Action = {
     if (callback) {
       callback({
         text: '[privy_client_base] ready',
-        content: response,
+        content: response as any,
       });
     }
 
-    return response;
+    return response as any;
   },
   examples: [] as ActionExample[][],
 };

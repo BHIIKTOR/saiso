@@ -53,11 +53,11 @@ export const privyAdvancedExecutionEvmAction: Action = {
     if (callback) {
       callback({
         text: '[privy_advanced_execution_evm] EVM adapter path selected',
-        content: response,
+        content: response as any,
       });
     }
 
-    return response;
+    return response as any;
   },
   examples: [
     [

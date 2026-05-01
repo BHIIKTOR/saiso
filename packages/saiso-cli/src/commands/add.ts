@@ -3,6 +3,7 @@ import chalk from 'chalk';
 import inquirer from 'inquirer';
 import ora from 'ora';
 import path from 'node:path';
+import { spawn } from 'node:child_process';
 import { promises as fs } from 'node:fs';
 import { existsSync } from 'node:fs';
 import { findProjectRoot, isSaisoProject, logger, saisoConfig, withTimeout } from '../core/index.js';
@@ -285,21 +286,31 @@ export const addCommand = new Command('add')
 
       try {
         const installedDependencies = await installFeatureDependencies(projectRoot, featureConfig, serverType);
-        await installFeature(projectRoot, feature, featureConfig, serverType);
+        const installedPackages = await installFeature(projectRoot, feature, featureConfig, serverType);
+        const packageDependencies = Array.from(new Set([...installedDependencies.packages, ...installedPackages]));
+        let packageInstallRan = false;
+        if (packageDependencies.length > 0) {
+          spinner.text = `Installing package dependencies: ${packageDependencies.join(', ')}`;
+          packageInstallRan = await installProjectPackages(projectRoot);
+        }
         spinner.succeed('Feature installed successfully!');
 
         console.log(chalk.green('\n✅ Feature added successfully!\n'));
-        if (installedDependencies.length > 0) {
-          console.log(chalk.gray(`Installed required feature dependencies: ${installedDependencies.join(', ')}\n`));
+        if (installedDependencies.features.length > 0) {
+          console.log(chalk.gray(`Installed required feature dependencies: ${installedDependencies.features.join(', ')}\n`));
+        }
+        if (packageDependencies.length > 0) {
+          const packageAction = packageInstallRan ? 'Installed' : 'Recorded';
+          console.log(chalk.gray(`${packageAction} package dependencies: ${packageDependencies.join(', ')}\n`));
         }
 
         // Show next steps
         console.log(chalk.bold('Next steps:\n'));
 
         if (featureConfig.dependencies && Object.keys(featureConfig.dependencies).length > 0) {
-          console.log(chalk.cyan('1. Install dependencies:'));
+          console.log(chalk.cyan(packageInstallRan ? '1. Dependencies installed:' : '1. Dependencies recorded in package.json:'));
           Object.entries(featureConfig.dependencies).forEach(([dep, version]) => {
-            console.log(chalk.gray(`   bun add ${dep}@${version}`));
+            console.log(chalk.gray(`   ${dep}@${version}`));
           });
           console.log();
         }
@@ -396,6 +407,8 @@ async function loadFeatureConfig(feature: string, serverType?: McpServerType): P
 
   for (const templateDir of templateDirs) {
     const possiblePaths = [
+      path.resolve(__dirname, `../templates/${templateDir}/${feature}/config.json`),
+      path.resolve(__dirname, `../../templates/${templateDir}/${feature}/config.json`),
       path.resolve(process.cwd(), `../../templates/${templateDir}/${feature}/config.json`),
       path.resolve(__dirname, `../../../templates/${templateDir}/${feature}/config.json`),
       path.resolve(__dirname, `../../../../templates/${templateDir}/${feature}/config.json`),
@@ -467,6 +480,8 @@ function resolveFeatureTemplatePath(feature: string, serverType?: McpServerType)
 
   for (const templateDir of templateDirs) {
     const possiblePaths = [
+      path.resolve(__dirname, `../templates/${templateDir}/${feature}`),
+      path.resolve(__dirname, `../../templates/${templateDir}/${feature}`),
       path.resolve(process.cwd(), `../../templates/${templateDir}/${feature}`),
       path.resolve(__dirname, `../../../templates/${templateDir}/${feature}`),
       path.resolve(__dirname, `../../../../templates/${templateDir}/${feature}`),
@@ -501,30 +516,40 @@ async function collectFeatureContexts(
   return contexts;
 }
 
+type InstalledFeatureDependencies = {
+  features: string[];
+  packages: string[];
+};
+
 async function installFeatureDependencies(
   projectRoot: string,
   config: FeatureConfig,
   serverType?: McpServerType,
   visiting = new Set<string>()
-): Promise<string[]> {
-  const installed: string[] = [];
+): Promise<InstalledFeatureDependencies> {
+  const installed: InstalledFeatureDependencies = {
+    features: [],
+    packages: [],
+  };
   for (const dependency of getFeatureDependencies(config)) {
     if (visiting.has(dependency)) {
       throw new Error(`Circular feature dependency detected: ${Array.from(visiting).join(' -> ')} -> ${dependency}`);
     }
     visiting.add(dependency);
     const dependencyConfig = await loadFeatureConfig(dependency, serverType);
-    installed.push(...await installFeatureDependencies(projectRoot, dependencyConfig, serverType, visiting));
+    const nested = await installFeatureDependencies(projectRoot, dependencyConfig, serverType, visiting);
+    installed.features.push(...nested.features);
+    installed.packages.push(...nested.packages);
     if (!(await isFeatureInstalled(projectRoot, dependency, serverType))) {
-      await installFeature(projectRoot, dependency, dependencyConfig, serverType);
-      installed.push(dependency);
+      installed.packages.push(...await installFeature(projectRoot, dependency, dependencyConfig, serverType));
+      installed.features.push(dependency);
     }
     visiting.delete(dependency);
   }
   return installed;
 }
 
-async function installFeature(projectRoot: string, feature: string, config: FeatureConfig, serverType?: McpServerType): Promise<void> {
+async function installFeature(projectRoot: string, feature: string, config: FeatureConfig, serverType?: McpServerType): Promise<string[]> {
   const templatePath = resolveFeatureTemplatePath(feature, serverType);
   const contexts = await collectFeatureContexts(feature, config, serverType);
 
@@ -550,16 +575,18 @@ async function installFeature(projectRoot: string, feature: string, config: Feat
   };
 
   // Update package.json with dependencies
+  let updatedDependencies: string[] = [];
   if (Object.keys(mergedDependencies).length > 0) {
-    await updatePackageJsonDependencies(projectRoot, mergedDependencies);
+    updatedDependencies = await updatePackageJsonDependencies(projectRoot, mergedDependencies);
   }
 
   // Update deterministic feature registry + entrypoint wiring.
   await updateFeatureRegistry(projectRoot, config);
   await updateMainIndex(projectRoot);
+  return updatedDependencies;
 }
 
-async function updatePackageJsonDependencies(projectRoot: string, dependencies: Record<string, string>): Promise<void> {
+async function updatePackageJsonDependencies(projectRoot: string, dependencies: Record<string, string>): Promise<string[]> {
   const packageJsonPath = path.join(projectRoot, 'package.json');
 
   try {
@@ -570,14 +597,75 @@ async function updatePackageJsonDependencies(projectRoot: string, dependencies: 
     }
 
     // Add new dependencies
+    const updated: string[] = [];
     Object.entries(dependencies).forEach(([dep, version]) => {
+      if (packageJson.dependencies[dep] !== version) {
+        updated.push(`${dep}@${version}`);
+      }
       packageJson.dependencies[dep] = version;
     });
 
     await fs.writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2));
+    return updated;
   } catch (error) {
     logger.warn(`Failed to update package.json: ${error instanceof Error ? error.message : error}`);
+    return [];
   }
+}
+
+async function commandExists(command: string): Promise<boolean> {
+  const child = spawn(command, ['--version'], {
+    stdio: 'ignore',
+  });
+
+  return new Promise((resolve) => {
+    child.on('error', () => resolve(false));
+    child.on('close', (code) => resolve(code === 0));
+  });
+}
+
+async function detectPackageInstallCommand(projectRoot: string): Promise<{ command: string; args: string[] }> {
+  if (existsSync(path.join(projectRoot, 'bun.lock')) || existsSync(path.join(projectRoot, 'bun.lockb'))) {
+    return { command: 'bun', args: ['install'] };
+  }
+  if (existsSync(path.join(projectRoot, 'pnpm-lock.yaml'))) {
+    return { command: 'pnpm', args: ['install'] };
+  }
+  if (existsSync(path.join(projectRoot, 'yarn.lock'))) {
+    return { command: 'yarn', args: ['install'] };
+  }
+  if (existsSync(path.join(projectRoot, 'package-lock.json'))) {
+    return { command: 'npm', args: ['install'] };
+  }
+  if (await commandExists('bun')) {
+    return { command: 'bun', args: ['install'] };
+  }
+  return { command: 'npm', args: ['install'] };
+}
+
+async function installProjectPackages(projectRoot: string): Promise<boolean> {
+  if (process.env.SAISO_SKIP_PACKAGE_INSTALL === 'true') {
+    return false;
+  }
+
+  const { command, args } = await detectPackageInstallCommand(projectRoot);
+  const child = spawn(command, args, {
+    cwd: projectRoot,
+    env: process.env,
+    stdio: 'ignore',
+  });
+
+  await new Promise<void>((resolve, reject) => {
+    child.on('error', reject);
+    child.on('close', (code) => {
+      if (code === 0) {
+        resolve();
+        return;
+      }
+      reject(new Error(`${command} ${args.join(' ')} failed with exit code ${code}`));
+    });
+  });
+  return true;
 }
 
 export async function updateMainIndex(projectRoot: string): Promise<void> {

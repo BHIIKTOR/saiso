@@ -1,6 +1,6 @@
 {
   "name": "@saiso/heretic-saiso-protocol-client",
-  "version": "1.0.0-rc5",
+  "version": "1.0.0-rc8",
   "description": "Protocol bridge for Heretic daemon integration",
   "type": "module",
   "main": "dist/index.js",

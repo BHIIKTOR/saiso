@@ -99,11 +99,11 @@ export const interactContractAction: Action = {
           if (callback) {
             callback({
               text: `Contract call successful. Result: ${JSON.stringify(formattedResult)}`,
-              content: response
+              content: response as any
             });
           }
 
-          return response;
+          return response as any;
 
         } catch (error) {
           throw new Error(`Contract read failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -170,11 +170,11 @@ export const interactContractAction: Action = {
         if (callback) {
           callback({
             text: `Contract transaction successful. Transaction: ${txHash}`,
-            content: response
+            content: response as any
           });
         }
 
-        return response;
+        return response as any;
       }
 
     } catch (error) {

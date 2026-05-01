@@ -139,11 +139,11 @@ export const preflightRiskChecksAction: Action = {
     if (callback) {
       callback({
         text: approved ? '[preflight_risk_checks] preflight approved' : '[preflight_risk_checks] preflight blocked',
-        content: response,
+        content: response as any,
       });
     }
 
-    return response;
+    return response as any;
   },
   examples: [] as ActionExample[][],
 };

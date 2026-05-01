@@ -51,11 +51,11 @@ export const localStrategyTestHarnessAction: Action = {
     if (callback) {
       callback({
         text: '[local_strategy_test_harness] completed for ' + chainFamily + ' (dryRun=' + String(response.data.dryRun) + ')',
-        content: response,
+        content: response as any,
       });
     }
 
-    return response;
+    return response as any;
   },
   examples: [
     [

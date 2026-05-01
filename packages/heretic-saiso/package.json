@@ -1,6 +1,6 @@
 {
   "name": "@saiso/heretic-saiso",
-  "version": "1.0.0-rc5",
+  "version": "1.0.0-rc8",
   "description": "Heretic daemon integration plugin for SAISO",
   "type": "module",
   "main": "dist/index.js",

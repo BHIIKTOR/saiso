@@ -121,8 +121,14 @@ export const gasEstimationAction: Action = {
       const content = message.content as GasEstimationContent;
 
       // Get configuration
-      const rpcUrl = runtime.getSetting('RPC_URL') || 'https://rpc.sepolia.org';
-      const gasApiKey = runtime.getSetting('GAS_PRICE_API_KEY');
+      const rpcUrlSetting = runtime.getSetting('RPC_URL');
+      const gasApiKeySetting = runtime.getSetting('GAS_PRICE_API_KEY');
+      const rpcUrl = typeof rpcUrlSetting === 'string' && rpcUrlSetting.trim()
+        ? rpcUrlSetting.trim()
+        : 'https://rpc.sepolia.org';
+      const gasApiKey = typeof gasApiKeySetting === 'string' && gasApiKeySetting.trim()
+        ? gasApiKeySetting.trim()
+        : undefined;
       const mevProtectionEnabled = runtime.getSetting('MEV_PROTECTION_ENABLED') === 'true';
 
       // Setup provider
@@ -202,8 +208,9 @@ export const gasEstimationAction: Action = {
 
         if (networkConfig.eip1559 && feeData.maxFeePerGas) {
           // EIP-1559 pricing
+          const priorityFeeSource = feeData.maxPriorityFeePerGas ?? feeData.maxFeePerGas;
           maxFeePerGas = BigInt(Math.floor(Number(feeData.maxFeePerGas) * multiplier));
-          maxPriorityFeePerGas = BigInt(Math.floor(Number(feeData.maxPriorityFeePerGas || feeData.maxFeePerGas) * multiplier * 0.1));
+          maxPriorityFeePerGas = BigInt(Math.floor(Number(priorityFeeSource) * multiplier * 0.1));
           gasPrice = maxFeePerGas;
         } else {
           // Legacy pricing
@@ -236,8 +243,9 @@ export const gasEstimationAction: Action = {
         finalGasPrice = finalMaxFeePerGas;
       } else if (networkConfig.eip1559 && feeData.maxFeePerGas) {
         // Calculate EIP-1559 pricing
+        const priorityFeeSource = feeData.maxPriorityFeePerGas ?? feeData.maxFeePerGas;
         finalMaxFeePerGas = BigInt(Math.floor(Number(feeData.maxFeePerGas) * selectedMultiplier));
-        finalMaxPriorityFeePerGas = BigInt(Math.floor(Number(feeData.maxPriorityFeePerGas || feeData.maxFeePerGas) * selectedMultiplier * 0.1));
+        finalMaxPriorityFeePerGas = BigInt(Math.floor(Number(priorityFeeSource) * selectedMultiplier * 0.1));
         finalGasPrice = finalMaxFeePerGas;
       } else {
         // Use fallback gas pricing
@@ -322,11 +330,11 @@ export const gasEstimationAction: Action = {
 
         callback({
           text: `Gas estimation for ${transactionType} transaction: ${costText} at ${selectedSpeed} speed (${result.gasPrice || result.maxFeePerGas} gwei). Network: ${networkConfig.name} (${congestionLevel} congestion)`,
-          content: response
+          content: response as any
         });
       }
 
-      return response;
+      return response as any;
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
@@ -349,11 +357,11 @@ export const gasEstimationAction: Action = {
       if (callback) {
         callback({
           text: `Failed to estimate gas: ${errorMessage}`,
-          content: response
+          content: response as any
         });
       }
 
-      return response;
+      return response as any;
     }
   }
 };
@@ -476,7 +484,10 @@ function extractUsdPrice(payload: unknown): number | null {
  */
 async function getNativeAssetPriceUsd(runtime: IAgentRuntime, chainId: number, apiKey?: string): Promise<number | null> {
   const fallback = Number(runtime.getSetting('ETH_PRICE_USD_FALLBACK') || runtime.getSetting('GAS_PRICE_USD_FALLBACK'));
-  const priceUrl = runtime.getSetting('ETH_PRICE_API_URL') || runtime.getSetting('GAS_PRICE_API_URL');
+  const priceUrlSetting = runtime.getSetting('ETH_PRICE_API_URL') || runtime.getSetting('GAS_PRICE_API_URL');
+  const priceUrl = typeof priceUrlSetting === 'string' && priceUrlSetting.trim()
+    ? priceUrlSetting.trim()
+    : undefined;
 
   if (priceUrl) {
     const url = new URL(priceUrl);

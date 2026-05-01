@@ -16,6 +16,7 @@ const localBunDir = path.join(os.homedir(), '.bun', 'bin');
 if (!process.env.PATH?.split(path.delimiter).includes(localBunDir)) {
   process.env.PATH = `${localBunDir}${path.delimiter}${process.env.PATH || ''}`;
 }
+process.env.SAISO_SKIP_PACKAGE_INSTALL ??= 'true';
 
 function parseArgs(argv) {
   const args = {};

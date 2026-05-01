@@ -80,11 +80,11 @@ export const queryBalanceAction: Action = {
       if (callback) {
         callback({
           text: `Balance for ${address}: ${formattedBalance} ${symbol}`,
-          content: response
+          content: response as any
         });
       }
 
-      return response;
+      return response as any;
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';

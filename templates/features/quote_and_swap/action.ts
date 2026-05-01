@@ -181,8 +181,8 @@ export const quoteAndSwapAction: Action = {
           latencyMs: Date.now() - startedAt,
         },
       };
-      if (callback) callback({ text: '[quote_and_swap] quote ready', content: response });
-      return response;
+      if (callback) callback({ text: '[quote_and_swap] quote ready', content: response as any });
+      return response as any;
     } catch (error) {
       const authError = error instanceof QuoteProviderAuthRequiredError ? error : undefined;
       const response = {
@@ -199,8 +199,8 @@ export const quoteAndSwapAction: Action = {
           latencyMs: Date.now() - startedAt,
         },
       };
-      if (callback) callback({ text: '[quote_and_swap] quote failed', content: response });
-      return response;
+      if (callback) callback({ text: '[quote_and_swap] quote failed', content: response as any });
+      return response as any;
     }
   },
   examples: [] as ActionExample[][],

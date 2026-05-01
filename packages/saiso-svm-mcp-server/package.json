@@ -1,6 +1,6 @@
 {
   "name": "@saiso/svm-mcp-server",
-  "version": "1.0.0-rc5",
+  "version": "1.0.0-rc8",
   "description": "First-party SAISO SVM MCP server with canonical parity operations",
   "type": "module",
   "main": "dist/index.js",
@@ -49,6 +49,6 @@
   "bugs": {
     "url": "https://github.com/BHIIKTOR/saiso/issues"
   },
-  "readme": "# @saiso/svm-mcp-server\n\nFirst-party SAISO SVM MCP server with canonical Solana/SVM parity operations for generated SAISO projects.\n\n## Install\n\n```bash\nnpm install @saiso/svm-mcp-server@rc\n```\n\nThe package also exposes a binary:\n\n```bash\nsaiso-svm-mcp-server --help\n```\n\n## Repository\n\nhttps://github.com/BHIIKTOR/saiso\n",
+  "readme": "# @saiso/svm-mcp-server\n\nFirst-party SAISO SVM MCP server with canonical Solana/SVM operations for generated SAISO projects.\n\n## Install\n\n```bash\nnpm install @saiso/svm-mcp-server@rc\n```\n\nThe package also exposes a binary:\n\n```bash\nsaiso-svm-mcp-server --help\n```\n\n## What It Provides\n\n- SVM account and balance query tools\n- SVM transaction-oriented MCP surfaces for generated agents\n- parity coverage for SAISO projects that need both EVM and SVM server families\n\nMost users receive this package through SVM project templates:\n\n```bash\nnpm install -g @saiso/cli@rc\nsaiso new my-svm-agent --template agent-svm --env testnet\n```\n\n## Repository\n\nhttps://github.com/BHIIKTOR/saiso\n",
   "readmeFilename": "README.md"
 }

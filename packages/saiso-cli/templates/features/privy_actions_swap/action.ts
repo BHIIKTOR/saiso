@@ -57,11 +57,11 @@ export const privyActionsSwapAction: Action = {
     if (callback) {
       callback({
         text: '[privy_actions_swap] completed for ' + chainFamily,
-        content: response,
+        content: response as any,
       });
     }
 
-    return response;
+    return response as any;
   },
   examples: [
     [

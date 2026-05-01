@@ -57,11 +57,11 @@ export const privyPolicyControlsAction: Action = {
     if (callback) {
       callback({
         text: '[privy_policy_controls] completed for ' + chainFamily,
-        content: response,
+        content: response as any,
       });
     }
 
-    return response;
+    return response as any;
   },
   examples: [
     [
