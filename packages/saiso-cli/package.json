@@ -1,6 +1,6 @@
 {
   "name": "@saiso/cli",
-  "version": "1.0.0-rc3",
+  "version": "1.0.0-rc5",
   "description": "A developer-first toolkit for building EVM and SVM agents with ElizaOS",
   "type": "module",
   "main": "dist/index.js",
@@ -37,6 +37,7 @@
     "typescript": "^5.0.0"
   },
   "files": [
+    "README.md",
     "dist/**/*",
     "templates/**/*"
   ],
@@ -62,5 +63,7 @@
   "homepage": "https://github.com/BHIIKTOR/saiso#readme",
   "bugs": {
     "url": "https://github.com/BHIIKTOR/saiso/issues"
-  }
+  },
+  "readme": "# @saiso/cli\n\nSAISO is a developer-first CLI for building, testing, and publishing EVM and SVM blockchain agents with ElizaOS-style runtime patterns, MCP server orchestration, payment-aware tool calls, policy guardrails, and template-based feature installation.\n\n## Install\n\n```bash\nnpm install -g @saiso/cli@rc\n```\n\nThe package installs the `saiso` binary:\n\n```bash\nsaiso --help\nsaiso new my-agent --env testnet\ncd my-agent\nbun install\nsaiso add gas_estimation --yes\nsaiso dev\n```\n\n## Common Feature Installs\n\n```bash\nsaiso add privy_client_base --yes\nsaiso add privy_wallet_lifecycle --yes\nsaiso add privy_balance_and_history --yes\nsaiso add privy_transfer --yes\nsaiso add privy_signing_evm --yes\nsaiso add gas_estimation --yes\n```\n\n## Repository\n\nSource, docs, release notes, and issue tracking live at:\n\nhttps://github.com/BHIIKTOR/saiso\n",
+  "readmeFilename": "README.md"
 }

@@ -293,7 +293,7 @@ export class ProjectScaffolder {
       },
       dependencies: {
         '@elizaos/core': '^2.0.0-alpha.77',
-        '@saiso/core': '^1.0.0-rc3',
+        '@saiso/core': '^1.0.0-rc5',
         dotenv: '^16.5.0',
       },
       devDependencies: {

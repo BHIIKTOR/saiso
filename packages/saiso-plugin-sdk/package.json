@@ -1,6 +1,6 @@
 {
   "name": "@saiso/plugin-sdk",
-  "version": "1.0.0-rc3",
+  "version": "1.0.0-rc5",
   "description": "Plugin SDK contracts for SAISO plugin authors",
   "type": "module",
   "main": "dist/index.js",
@@ -23,6 +23,7 @@
     "typescript": "^5.0.0"
   },
   "files": [
+    "README.md",
     "dist/**/*"
   ],
   "engines": {
@@ -43,5 +44,7 @@
   "homepage": "https://github.com/BHIIKTOR/saiso#readme",
   "bugs": {
     "url": "https://github.com/BHIIKTOR/saiso/issues"
-  }
+  },
+  "readme": "# @saiso/plugin-sdk\n\nPlugin SDK contracts for SAISO plugin authors.\n\n## Install\n\n```bash\nnpm install @saiso/plugin-sdk@rc\n```\n\n## Repository\n\nhttps://github.com/BHIIKTOR/saiso\n",
+  "readmeFilename": "README.md"
 }

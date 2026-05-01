@@ -1,6 +1,6 @@
 {
   "name": "@saiso/core",
-  "version": "1.0.0-rc3",
+  "version": "1.0.0-rc5",
   "description": "Core utilities and configuration management for SAISO - EVM-agnostic blockchain agent toolkit",
   "type": "module",
   "main": "dist/index.js",
@@ -44,6 +44,7 @@
     "typescript": "^5.0.0"
   },
   "files": [
+    "README.md",
     "dist/**/*"
   ],
   "engines": {
@@ -67,5 +68,7 @@
   "homepage": "https://github.com/BHIIKTOR/saiso#readme",
   "bugs": {
     "url": "https://github.com/BHIIKTOR/saiso/issues"
-  }
+  },
+  "readme": "# @saiso/core\n\nCore runtime, configuration, MCP orchestration, payment, identity, trust, service blueprint, and utility modules used by SAISO projects and the `@saiso/cli` package.\n\n## Install\n\n```bash\nnpm install @saiso/core@rc\n```\n\n## Repository\n\nhttps://github.com/BHIIKTOR/saiso\n",
+  "readmeFilename": "README.md"
 }

@@ -1,6 +1,6 @@
 # RC Release Checklist
 
-Use this checklist for `1.0.0-rc3` and later RCs.
+Use this checklist for `1.0.0-rc5` and later RCs.
 
 ## 1. Credentialed Live Template Smoke
 
@@ -40,7 +40,7 @@ Manual runs default to failing when hosted 0x or Privy credentials are missing. 
 Run the full local release gate:
 
 ```bash
-npm run release:validate-rc -- --version 1.0.0-rc3
+npm run release:validate-rc -- --version 1.0.0-rc5
 ```
 
 This includes template integrity, sync drift, generated template regression, typechecks, tests, live template smoke, release metadata validation, and pack-install smoke.
@@ -49,7 +49,7 @@ This includes template integrity, sync drift, generated template regression, typ
 
 Use the `Publish Packages` workflow:
 
-- `version`: `1.0.0-rc3`
+- `version`: `1.0.0-rc5`
 - `dist_tag`: `rc`
 - `dry_run`: `true` for rehearsal, then `false` for publish
 - `require_live_template_credentials`: `true` once `ZEROX_API_KEY`, `PRIVY_APP_ID`, and `PRIVY_APP_SECRET` are configured
@@ -61,7 +61,7 @@ The workflow publishes package dependencies first and publishes the `saiso` CLI 
 After npm publish completes, verify the advertised install path from a clean project:
 
 ```bash
-npm run release:post-rc-verify -- --version 1.0.0-rc3
+npm run release:post-rc-verify -- --version 1.0.0-rc5
 ```
 
 The verifier installs `@saiso/cli@<version>` from npm, creates a new project, adds the advertised Privy and gas-estimation features, and typechecks the generated project.

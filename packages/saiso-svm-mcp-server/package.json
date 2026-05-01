@@ -1,6 +1,6 @@
 {
   "name": "@saiso/svm-mcp-server",
-  "version": "1.0.0-rc3",
+  "version": "1.0.0-rc5",
   "description": "First-party SAISO SVM MCP server with canonical parity operations",
   "type": "module",
   "main": "dist/index.js",
@@ -25,6 +25,7 @@
     "typescript": "^5.0.0"
   },
   "files": [
+    "README.md",
     "dist/**/*"
   ],
   "engines": {
@@ -47,5 +48,7 @@
   "homepage": "https://github.com/BHIIKTOR/saiso#readme",
   "bugs": {
     "url": "https://github.com/BHIIKTOR/saiso/issues"
-  }
+  },
+  "readme": "# @saiso/svm-mcp-server\n\nFirst-party SAISO SVM MCP server with canonical Solana/SVM parity operations for generated SAISO projects.\n\n## Install\n\n```bash\nnpm install @saiso/svm-mcp-server@rc\n```\n\nThe package also exposes a binary:\n\n```bash\nsaiso-svm-mcp-server --help\n```\n\n## Repository\n\nhttps://github.com/BHIIKTOR/saiso\n",
+  "readmeFilename": "README.md"
 }
