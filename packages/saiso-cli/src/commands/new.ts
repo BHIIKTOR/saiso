@@ -262,8 +262,8 @@ export const newCommand = new Command('new')
         }
 
 
-        console.log(chalk.gray(' Documentation: https://github.com/bhiktor/saiso'));
-        console.log(chalk.gray('🆘 Support: https://github.com/bhiktor/saiso/issues\n'));
+        console.log(chalk.gray(' Documentation: https://github.com/BHIIKTOR/saiso'));
+        console.log(chalk.gray('🆘 Support: https://github.com/BHIIKTOR/saiso/issues\n'));
 
       } catch (error) {
         spinner.fail('Failed to create project');

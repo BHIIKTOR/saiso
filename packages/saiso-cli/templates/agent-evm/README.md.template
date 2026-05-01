@@ -1,6 +1,6 @@
 # {{projectName}}
 
-A multi-chain EVM blockchain agent built with [SAISO](https://github.com/bhiktor/saiso) using the **EVM MCP Server** for comprehensive blockchain ecosystem access.
+A multi-chain EVM blockchain agent built with [SAISO](https://github.com/BHIIKTOR/saiso) using the **EVM MCP Server** for comprehensive blockchain ecosystem access.
 
 ## 🌐 EVM Server Features
 
@@ -252,10 +252,10 @@ The EVM server provides:
 
 ## 📚 Documentation
 
-- [SAISO Documentation](https://github.com/bhiktor/saiso)
+- [SAISO Documentation](https://github.com/BHIIKTOR/saiso)
 - [EVM MCP Server](https://github.com/mcpdotdirect/evm-mcp-server)
 - [Ethereum Documentation](https://ethereum.org/developers)
-- [Privy Feature Pack](https://github.com/bhiktor/saiso/blob/main/docs/privy-feature-pack.md)
+- [Privy Feature Pack](https://github.com/BHIIKTOR/saiso/blob/main/docs/privy-feature-pack.md)
 
 ## 🆚 EVM vs SVM Server
 

@@ -2,7 +2,7 @@
 
 {{description}}
 
-A multi-chain blockchain agent built with [SAISO](https://github.com/bhiktor/saiso) toolkit.
+A multi-chain blockchain agent built with [SAISO](https://github.com/BHIIKTOR/saiso) toolkit.
 
 ## 🚀 Quick Start
 
@@ -139,7 +139,7 @@ Recommended install order for Privy features:
 
 ## 📚 Documentation
 
-- [SAISO Documentation](https://github.com/bhiktor/saiso)
+- [SAISO Documentation](https://github.com/BHIIKTOR/saiso)
 - [Ethereum Documentation](https://ethereum.org/en/developers/docs/)
 - [Solana Documentation](https://solana.com/docs)
 

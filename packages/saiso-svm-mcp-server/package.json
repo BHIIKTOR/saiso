@@ -1,6 +1,6 @@
 {
   "name": "@saiso/svm-mcp-server",
-  "version": "1.0.0-rc2",
+  "version": "1.0.0-rc3",
   "description": "First-party SAISO SVM MCP server with canonical parity operations",
   "type": "module",
   "main": "dist/index.js",
@@ -41,7 +41,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bhiktor/saiso.git",
+    "url": "git+https://github.com/BHIIKTOR/saiso.git",
     "directory": "packages/saiso-svm-mcp-server"
+  },
+  "homepage": "https://github.com/BHIIKTOR/saiso#readme",
+  "bugs": {
+    "url": "https://github.com/BHIIKTOR/saiso/issues"
   }
 }

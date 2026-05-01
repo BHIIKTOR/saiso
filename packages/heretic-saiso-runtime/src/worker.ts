@@ -268,7 +268,7 @@ export async function startRuntimeWorker(options: RuntimeWorkerStartOptions): Pr
     pid: child.pid ?? process.pid,
     processStartTime: PROCESS_START_TIME,
     startedAt: new Date().toISOString(),
-    version: '1.0.0-rc2',
+    version: '1.0.0-rc3',
     projectRoot,
     status: 'running',
   });
@@ -291,7 +291,7 @@ export async function stopRuntimeWorker(projectRootInput: string): Promise<Runti
       pid,
       processStartTime: PROCESS_START_TIME,
       startedAt: new Date().toISOString(),
-      version: '1.0.0-rc2',
+      version: '1.0.0-rc3',
       projectRoot,
       status: 'stopped',
     });
@@ -318,7 +318,7 @@ export async function stopRuntimeWorker(projectRootInput: string): Promise<Runti
     pid,
     processStartTime: PROCESS_START_TIME,
     startedAt: new Date().toISOString(),
-    version: '1.0.0-rc2',
+    version: '1.0.0-rc3',
     projectRoot,
     status: 'stopped',
   });

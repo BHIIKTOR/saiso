@@ -1,13 +1,21 @@
 {
   "name": "@saiso/monorepo",
-  "version": "1.0.0-rc2",
+  "version": "1.0.0-rc3",
   "private": true,
   "description": "A developer-first toolkit for building, testing, and deploying blockchain-integrated LLM agents using ElizaOS across EVM and SVM",
-  "keywords": ["eliza", "blockchain", "agent", "cli", "mcp", "evm", "svm"],
-  "homepage": "https://github.com/bhiktor/saiso#readme",
+  "keywords": [
+    "eliza",
+    "blockchain",
+    "agent",
+    "cli",
+    "mcp",
+    "evm",
+    "svm"
+  ],
+  "homepage": "https://github.com/BHIIKTOR/saiso#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bhiktor/saiso.git"
+    "url": "git+https://github.com/BHIIKTOR/saiso.git"
   },
   "license": "MIT",
   "author": "saiso Team",
@@ -56,5 +64,8 @@
     "node": ">=18.0.0",
     "bun": ">=1.0.0"
   },
-  "packageManager": "bun@1.0.0"
+  "packageManager": "bun@1.0.0",
+  "bugs": {
+    "url": "https://github.com/BHIIKTOR/saiso/issues"
+  }
 }

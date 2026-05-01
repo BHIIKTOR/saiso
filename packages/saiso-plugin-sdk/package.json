@@ -1,6 +1,6 @@
 {
   "name": "@saiso/plugin-sdk",
-  "version": "1.0.0-rc2",
+  "version": "1.0.0-rc3",
   "description": "Plugin SDK contracts for SAISO plugin authors",
   "type": "module",
   "main": "dist/index.js",
@@ -34,5 +34,14 @@
     "plugin",
     "sdk"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BHIIKTOR/saiso.git",
+    "directory": "packages/saiso-plugin-sdk"
+  },
+  "homepage": "https://github.com/BHIIKTOR/saiso#readme",
+  "bugs": {
+    "url": "https://github.com/BHIIKTOR/saiso/issues"
+  }
 }

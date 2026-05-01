@@ -315,7 +315,7 @@ export class HereticSocketClient {
     try {
       const hello = await client.request('client.hello', {
         clientKind: 'other',
-        clientVersion: 'heretic-saiso-protocol-client/1.0.0-rc2',
+        clientVersion: 'heretic-saiso-protocol-client/1.0.0-rc3',
         capabilities: ['machine_output'],
       });
 

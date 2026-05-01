@@ -1,6 +1,6 @@
 # {{projectName}}
 
-A Solana/SVM blockchain agent built with [SAISO](https://github.com/bhiktor/saiso) using the **SVM MCP Server** for high-throughput agentic execution.
+A Solana/SVM blockchain agent built with [SAISO](https://github.com/BHIIKTOR/saiso) using the **SVM MCP Server** for high-throughput agentic execution.
 
 ## 🌐 SVM Server Features
 
@@ -224,10 +224,10 @@ The SVM server provides:
 
 ## 📚 Documentation
 
-- [SAISO Documentation](https://github.com/bhiktor/saiso)
+- [SAISO Documentation](https://github.com/BHIIKTOR/saiso)
 - [Solana Documentation](https://solana.com/docs)
 - [SAISO EVM Template](../agent-evm/README.md.template)
-- [Privy Feature Pack](https://github.com/bhiktor/saiso/blob/main/docs/privy-feature-pack.md)
+- [Privy Feature Pack](https://github.com/BHIIKTOR/saiso/blob/main/docs/privy-feature-pack.md)
 
 ## 🌟 Use Cases
 

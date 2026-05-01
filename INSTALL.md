@@ -23,7 +23,7 @@ If you're contributing to SAISO or want to use the latest development version:
 
 ```bash
 # Clone the repository
-git clone https://github.com/bhiktor/saiso.git
+git clone https://github.com/BHIIKTOR/saiso.git
 cd saiso
 
 # Install dependencies and build
@@ -162,6 +162,6 @@ curl -fsSL https://bun.sh/install | bash
 
 ## Support
 
-- [GitHub Issues](https://github.com/bhiktor/saiso/issues)
-- [Documentation](https://github.com/bhiktor/saiso#readme)
-- [Examples](https://github.com/bhiktor/saiso/tree/main/examples)
+- [GitHub Issues](https://github.com/BHIIKTOR/saiso/issues)
+- [Documentation](https://github.com/BHIIKTOR/saiso#readme)
+- [Examples](https://github.com/BHIIKTOR/saiso/tree/main/examples)

@@ -1,6 +1,6 @@
 {
   "name": "@saiso/cli",
-  "version": "1.0.0-rc2",
+  "version": "1.0.0-rc3",
   "description": "A developer-first toolkit for building EVM and SVM agents with ElizaOS",
   "type": "module",
   "main": "dist/index.js",
@@ -56,11 +56,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bhiktor/saiso.git",
+    "url": "git+https://github.com/BHIIKTOR/saiso.git",
     "directory": "packages/saiso-cli"
   },
-  "homepage": "https://github.com/bhiktor/saiso#readme",
+  "homepage": "https://github.com/BHIIKTOR/saiso#readme",
   "bugs": {
-    "url": "https://github.com/bhiktor/saiso/issues"
+    "url": "https://github.com/BHIIKTOR/saiso/issues"
   }
 }

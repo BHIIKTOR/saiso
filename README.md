@@ -108,7 +108,7 @@ For contributing or using the latest development version:
 
 ```bash
 # Clone and build the toolkit
-git clone https://github.com/bhiktor/saiso.git
+git clone https://github.com/BHIIKTOR/saiso.git
 cd saiso
 bun install
 bun run build
@@ -493,7 +493,7 @@ Pull requests, EVM/SVM plugins, behavior templates, and feedback are welcome!
 ### Development Setup
 
 ```bash
-git clone https://github.com/bhiktor/saiso.git
+git clone https://github.com/BHIIKTOR/saiso.git
 cd saiso
 bun install
 bun run build
@@ -521,4 +521,4 @@ MIT
 
 Built with ❤️ by the saiso Team.
 
-For questions, issues, or contributions, please visit our [GitHub repository](https://github.com/bhiktor/saiso).
+For questions, issues, or contributions, please visit our [GitHub repository](https://github.com/BHIIKTOR/saiso).

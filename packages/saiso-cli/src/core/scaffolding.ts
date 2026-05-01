@@ -293,7 +293,7 @@ export class ProjectScaffolder {
       },
       dependencies: {
         '@elizaos/core': '^2.0.0-alpha.77',
-        '@saiso/core': '^1.0.0-rc2',
+        '@saiso/core': '^1.0.0-rc3',
         dotenv: '^16.5.0',
       },
       devDependencies: {
@@ -728,7 +728,7 @@ main().catch(console.error);
   ): Promise<void> {
     const readme = `# ${projectName}
 
-A multi-chain blockchain agent built with [SAISO](https://github.com/bhiktor/saiso) and [ElizaOS](https://github.com/elizaOS/eliza).
+A multi-chain blockchain agent built with [SAISO](https://github.com/BHIIKTOR/saiso) and [ElizaOS](https://github.com/elizaOS/eliza).
 
 ## 🚀 Quick Start
 
@@ -836,7 +836,7 @@ saiso add interact_contract
 
 ## 📚 Documentation
 
-- [SAISO Documentation](https://github.com/bhiktor/saiso)
+- [SAISO Documentation](https://github.com/BHIIKTOR/saiso)
 - [ElizaOS Documentation](https://github.com/elizaOS/eliza)
 - [Solana Documentation](https://solana.com/docs)
 - [Ethereum Documentation](https://ethereum.org/en/developers/docs/)
