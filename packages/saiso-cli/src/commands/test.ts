@@ -146,7 +146,7 @@ testCommand
 /**
  * Discover test files in the project
  */
-function discoverTestFiles(projectRoot: string): string[] {
+export function discoverTestFiles(projectRoot: string): string[] {
   const testFiles: string[] = [];
   const testPatterns = [
     'tests',
@@ -187,7 +187,7 @@ function discoverTestFiles(projectRoot: string): string[] {
 /**
  * Find test files in a directory
  */
-function findTestFilesInDirectory(dir: string, recursive = true): string[] {
+export function findTestFilesInDirectory(dir: string, recursive = true): string[] {
   const testFiles: string[] = [];
 
   try {
@@ -246,7 +246,7 @@ async function loadTestEnvironment(projectRoot: string, env: string): Promise<vo
 /**
  * Build test command arguments
  */
-function buildTestCommand(options: TestOptions, testFiles: string[]): string[] {
+export function buildTestCommand(options: TestOptions, testFiles: string[]): string[] {
   const args = ['test'];
 
   if (options.watch) {

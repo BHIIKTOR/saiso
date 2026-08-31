@@ -588,7 +588,7 @@ function createCallCommand(): Command {
 }
 
 // Helper functions
-function getServerCategory(type: ServerType): 'blockchain' | 'utility' | 'custom' {
+export function getServerCategory(type: ServerType): 'blockchain' | 'utility' | 'custom' {
   switch (type) {
     case 'svm':
     case 'evm':
@@ -602,7 +602,7 @@ function getServerCategory(type: ServerType): 'blockchain' | 'utility' | 'custom
   }
 }
 
-function getServerCapabilities(type: ServerType): string[] {
+export function getServerCapabilities(type: ServerType): string[] {
   switch (type) {
     case 'svm':
       return ['send_sol', 'query_balance', 'read_program_account', 'simulate_transaction', 'spl_tokens'];
@@ -617,7 +617,7 @@ function getServerCapabilities(type: ServerType): string[] {
   }
 }
 
-function createServerSpecificConfig(
+export function createServerSpecificConfig(
   type: ServerType,
   network: string,
   options: any
@@ -653,7 +653,7 @@ function createServerSpecificConfig(
   }
 }
 
-function getChainIdForNetwork(network: string, type: 'evm' | 'svm'): number {
+export function getChainIdForNetwork(network: string, type: 'evm' | 'svm'): number {
   if (type === 'svm') {
     switch (network) {
       case 'solana-mainnet': return 101;

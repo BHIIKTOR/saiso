@@ -4,7 +4,7 @@ import { existsSync, readFileSync, copyFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { saisoConfig, findProjectRoot, type SaisoEnvironment } from '../core/index.js';
 
-function isValidEnvironment(env: string): env is SaisoEnvironment {
+export function isValidEnvironment(env: string): env is SaisoEnvironment {
   return ['testnet', 'mainnet', 'devnet'].includes(env);
 }
 

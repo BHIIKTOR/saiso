@@ -10,7 +10,7 @@ import {
 } from '@saiso/core';
 import { findProjectRoot, isSaisoProject, saisoConfig, type SaisoEnvironment } from '../core/index.js';
 
-function parseServiceFlag(raw: string): { name: string; endpoint: string } {
+export function parseServiceFlag(raw: string): { name: string; endpoint: string } {
   const index = raw.indexOf('=');
   if (index <= 0 || index === raw.length - 1) {
     throw new Error(`Invalid --service value '${raw}'. Expected format: name=https://endpoint`);
@@ -21,7 +21,7 @@ function parseServiceFlag(raw: string): { name: string; endpoint: string } {
   };
 }
 
-function parseOptionalBooleanOption(raw: unknown, flagName: string): boolean | undefined {
+export function parseOptionalBooleanOption(raw: unknown, flagName: string): boolean | undefined {
   if (raw === undefined) {
     return undefined;
   }
@@ -34,7 +34,7 @@ function parseOptionalBooleanOption(raw: unknown, flagName: string): boolean | u
   throw new Error(`Invalid ${flagName} value '${raw}'. Expected true or false.`);
 }
 
-function uniqueServices(
+export function uniqueServices(
   services: Array<{ name: string; endpoint: string; version?: string }>
 ): Array<{ name: string; endpoint: string; version?: string }> {
   const seen = new Set<string>();
@@ -50,7 +50,7 @@ function uniqueServices(
   return output;
 }
 
-function resolveRegistrationFromConfig(
+export function resolveRegistrationFromConfig(
   projectRoot: string,
   options: {
     env?: string;
@@ -189,7 +189,7 @@ function parseAgentId(raw: string): number {
   return parsed;
 }
 
-function topLevelDiff(
+export function topLevelDiff(
   previous: Erc8004Registration | null,
   next: Erc8004Registration
 ): {
