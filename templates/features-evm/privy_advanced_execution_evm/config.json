@@ -21,7 +21,9 @@
     }
   ],
   "integration": {
-    "actions": ["privyAdvancedExecutionEvmAction"],
+    "actions": [
+      "privyAdvancedExecutionEvmAction"
+    ],
     "imports": [
       "import { privyAdvancedExecutionEvmAction } from './actions/privyAdvancedExecutionEvm.js';"
     ]
@@ -46,5 +48,8 @@
   },
   "examples": [
     "Run privy_advanced_execution_evm in a EVM project"
+  ],
+  "featureDependencies": [
+    "privy_client_base"
   ]
 }

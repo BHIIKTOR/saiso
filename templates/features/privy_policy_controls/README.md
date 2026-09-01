@@ -15,9 +15,9 @@
 
 ## Usage
 
-1. Install with saiso add privy_policy_controls.
-2. Invoke action PRIVY_POLICY_CONTROLS with wallet and network context.
-3. Extend handler internals with concrete Privy API calls.
+1. Install with `saiso add privy_policy_controls`.
+2. Invoke action `PRIVY_POLICY_CONTROLS` with an operation (`create-policy`, `list-policies`, `create-rule`, `create-condition-set`, or `create-key-quorum`) and policy context.
+3. Requires `PRIVY_APP_ID` and `PRIVY_APP_SECRET`.
 
 ## Output Contract
 

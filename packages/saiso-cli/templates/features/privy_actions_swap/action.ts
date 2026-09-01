@@ -1,9 +1,14 @@
 import { Action, IAgentRuntime, Memory, State, HandlerCallback, ActionExample } from '@elizaos/core';
+import { createPrivyClient } from '../privy_client_base/client';
 
-interface privyActionsSwapActionContent {
+interface PrivyActionsSwapContent {
   chainFamily?: 'evm' | 'svm';
+  operation?: 'quote' | 'execute' | 'status';
   walletId?: string;
-  walletAddress?: string;
+  actionId?: string;
+  fromToken?: string;
+  toToken?: string;
+  amount?: string;
   network?: string;
   payload?: Record<string, unknown>;
   requestId?: string;
@@ -11,75 +16,98 @@ interface privyActionsSwapActionContent {
   expiresAt?: string;
 }
 
+function readSetting(runtime: IAgentRuntime, key: string, fallback = ''): string {
+  const value = runtime.getSetting(key);
+  return typeof value === 'string' && value.trim() ? value.trim() : fallback;
+}
+
+function createClient(runtime: IAgentRuntime) {
+  const appId = readSetting(runtime, 'PRIVY_APP_ID');
+  const appSecret = readSetting(runtime, 'PRIVY_APP_SECRET');
+  if (!appId || !appSecret) {
+    throw new Error('PRIVY_APP_ID and PRIVY_APP_SECRET are required');
+  }
+  return createPrivyClient({
+    appId,
+    appSecret,
+    baseUrl: readSetting(runtime, 'PRIVY_BASE_URL', 'https://api.privy.io/v1').replace(/\/$/, ''),
+    timeoutMs: Number(readSetting(runtime, 'PRIVY_REQUEST_TIMEOUT_MS', '30000')),
+    retryMaxAttempts: Number(readSetting(runtime, 'PRIVY_RETRY_MAX_ATTEMPTS', '3')),
+    retryBaseDelayMs: Number(readSetting(runtime, 'PRIVY_RETRY_BASE_DELAY_MS', '200')),
+  });
+}
+
 export const privyActionsSwapAction: Action = {
   name: 'PRIVY_ACTIONS_SWAP',
-  similes: ['PRIVY_ACTIONS_SWAP', 'PRIVY_ACTIONS_SWAP_RUN', 'PRIVY_ACTIONS_SWAP_EXECUTE'],
-  description: 'Run Privy swap quote and action status workflows',
+  similes: ['PRIVY_ACTIONS_SWAP', 'PRIVY_SWAP', 'PRIVY_SWAP_QUOTE', 'PRIVY_SWAP_EXECUTE'],
+  description: 'Quote token swaps, execute, and poll action status',
   validate: async (_runtime: IAgentRuntime, message: Memory) => {
-    const content = (message.content || {}) as privyActionsSwapActionContent;
-    if (typeof content !== 'object' || content === null) {
-      return false;
-    }
-    return content.chainFamily === undefined || content.chainFamily === 'evm' || content.chainFamily === 'svm';
+    const content = (message.content || {}) as PrivyActionsSwapContent;
+    return typeof content === 'object' && content !== null
+      && (content.chainFamily === undefined || content.chainFamily === 'evm' || content.chainFamily === 'svm');
   },
   handler: async (
     runtime: IAgentRuntime,
     message: Memory,
-    _state: State,
+    _state: State | undefined,
     _options: any,
-    callback: HandlerCallback
+    callback?: HandlerCallback
   ) => {
-    const content = (message.content || {}) as privyActionsSwapActionContent;
+    const content = (message.content || {}) as PrivyActionsSwapContent;
     const startedAt = Date.now();
     const chainFamily = content.chainFamily || 'evm';
-    const requestId = content.requestId || 'saiso-privy-' + startedAt.toString(36);
-    const idempotencyKey = content.idempotencyKey || 'idem-' + startedAt.toString(36);
-    const expiresAt = content.expiresAt || new Date(startedAt + Number(runtime.getSetting('PRIVY_REQUEST_EXPIRY_MS') || 120000)).toISOString();
+    const requestId = content.requestId || 'saiso-privy-swap-' + startedAt.toString(36);
+    const idempotencyKey = content.idempotencyKey || 'idem-swap-' + startedAt.toString(36);
+    const expiresAt = content.expiresAt || new Date(startedAt + Number(readSetting(runtime, 'PRIVY_REQUEST_EXPIRY_MS', '120000'))).toISOString();
+    const operation = content.operation || (content.actionId ? 'status' : 'quote');
 
-    const response = {
-      success: true,
-      operation: 'privy_actions_swap',
-      chainFamily,
-      requestId,
-      data: {
-        walletId: content.walletId,
-        walletAddress: content.walletAddress,
+    try {
+      const client = createClient(runtime);
+      let path = '/wallets/swap/quote';
+      let method: 'GET' | 'POST' = 'POST';
+      let body: unknown = {
+        chain_type: chainFamily === 'svm' ? 'solana' : 'ethereum',
         network: content.network,
-        payload: content.payload || {},
-      },
-      meta: {
-        idempotencyKey,
-        expiresAt,
-        latencyMs: Date.now() - startedAt,
-      },
-    };
+        from_token: content.fromToken,
+        to_token: content.toToken,
+        amount: content.amount,
+        ...content.payload,
+      };
 
-    if (callback) {
-      callback({
-        text: '[privy_actions_swap] completed for ' + chainFamily,
-        content: response as any,
-      });
+      if (operation === 'execute') {
+        if (!content.walletId) throw new Error('walletId is required for execute');
+        path = `/wallets/${encodeURIComponent(content.walletId)}/swap/tokens`;
+        method = 'POST';
+      } else if (operation === 'status') {
+        if (!content.actionId) throw new Error('actionId is required for status');
+        path = `/wallets/actions/${encodeURIComponent(content.actionId)}`;
+        method = 'GET';
+        body = undefined;
+      }
+
+      const result = await client.request(path, { method, body, idempotencyKey, expiresAt });
+      const response = {
+        success: true,
+        operation: 'privy_actions_swap',
+        chainFamily,
+        requestId,
+        data: { operation, walletId: content.walletId, actionId: content.actionId, network: content.network, result },
+        meta: { idempotencyKey, expiresAt, latencyMs: Date.now() - startedAt },
+      };
+      if (callback) callback({ text: '[privy_actions_swap] Privy swap operation completed', content: response as any });
+      return response as any;
+    } catch (error) {
+      const response = {
+        success: false,
+        operation: 'privy_actions_swap',
+        chainFamily,
+        requestId,
+        error: { code: 'privy_actions_swap_failed', message: error instanceof Error ? error.message : String(error) },
+        meta: { idempotencyKey, expiresAt, latencyMs: Date.now() - startedAt },
+      };
+      if (callback) callback({ text: '[privy_actions_swap] Privy swap operation failed', content: response as any });
+      return response as any;
     }
-
-    return response as any;
   },
-  examples: [
-    [
-      {
-        user: '{{user1}}',
-        content: {
-          text: 'Run privy_actions_swap for an EVM wallet',
-          chainFamily: 'evm',
-          walletId: 'wallet_123',
-        },
-      },
-      {
-        user: '{{agent}}',
-        content: {
-          text: 'Running privy_actions_swap with Privy-compatible request envelope.',
-          action: 'PRIVY_ACTIONS_SWAP',
-        },
-      },
-    ],
-  ] as ActionExample[][],
+  examples: [] as ActionExample[][],
 };

@@ -2,7 +2,7 @@
 
 ## What It Adds
 
-1. Quote token swaps, execute, and poll action status.
+1. Quote token swaps, execute them, and poll action status.
 2. Chain-agnostic action envelope for evm and svm.
 3. Idempotency and request-expiry metadata for mutating workflows.
 
@@ -14,9 +14,9 @@
 
 ## Usage
 
-1. Install with saiso add privy_actions_swap.
-2. Invoke action PRIVY_ACTIONS_SWAP with wallet and network context.
-3. Extend handler internals with concrete Privy API calls.
+1. Install with `saiso add privy_actions_swap`.
+2. Invoke action `PRIVY_ACTIONS_SWAP` with an operation (`quote`, `execute`, or `status`) and swap context.
+3. Requires `PRIVY_APP_ID` and `PRIVY_APP_SECRET`; execution can move real assets when configured with live credentials.
 
 ## Output Contract
 

@@ -1,33 +1,78 @@
 import { Action, IAgentRuntime, Memory, State, HandlerCallback, ActionExample } from '@elizaos/core';
 
-interface localStrategyTestHarnessActionContent {
+interface LocalStrategyTestHarnessContent {
   chainFamily?: 'evm' | 'svm' | 'cross';
   dryRun?: boolean;
   requestId?: string;
+  strategy?: string;
+  scenario?: {
+    name?: string;
+    steps?: Array<{
+      action?: string;
+      price?: number;
+      amount?: number;
+    }>;
+  };
   payload?: Record<string, unknown>;
-  maxCostUsd?: number;
-  minTrustScore?: number;
+}
+
+function readSetting(runtime: IAgentRuntime, key: string, fallback = ''): string {
+  const value = runtime.getSetting(key);
+  return typeof value === 'string' && value.trim() ? value.trim() : fallback;
+}
+
+function runScenario(strategy: string, steps: Array<{ action?: string; price?: number; amount?: number }>) {
+  let balance = 1000;
+  let pnl = 0;
+  const trades: Array<{ step: number; action: string; price: number; amount: number; balance: number }> = [];
+
+  steps.forEach((step, index) => {
+    const action = step.action || 'hold';
+    const price = Number(step.price ?? 0);
+    const amount = Number(step.amount ?? 0);
+    if (action === 'buy' && amount > 0) {
+      balance -= amount * price;
+      pnl -= amount * price;
+    } else if (action === 'sell' && amount > 0) {
+      balance += amount * price;
+      pnl += amount * price;
+    }
+    trades.push({ step: index + 1, action, price, amount, balance });
+  });
+
+  return {
+    strategy,
+    initialBalance: 1000,
+    finalBalance: balance,
+    pnl,
+    tradeCount: trades.length,
+    trades,
+  };
 }
 
 export const localStrategyTestHarnessAction: Action = {
   name: 'LOCAL_STRATEGY_TEST_HARNESS',
-  similes: ['LOCAL_STRATEGY_TEST_HARNESS', 'LOCAL_STRATEGY_TEST_HARNESS_RUN', 'LOCAL_STRATEGY_TEST_HARNESS_EXECUTE'],
-  description: 'Run deterministic local strategy scenarios',
+  similes: ['LOCAL_STRATEGY_TEST_HARNESS', 'STRATEGY_TEST', 'STRATEGY_HARNESS', 'BACKTEST'],
+  description: 'Run deterministic strategy scenarios for local validation',
   validate: async (_runtime: IAgentRuntime, message: Memory) => {
-    const content = (message.content || {}) as localStrategyTestHarnessActionContent;
-    return typeof content === 'object';
+    const content = (message.content || {}) as LocalStrategyTestHarnessContent;
+    return typeof content === 'object' && content !== null;
   },
   handler: async (
     runtime: IAgentRuntime,
     message: Memory,
-    _state: State,
+    _state: State | undefined,
     _options: any,
-    callback: HandlerCallback
+    callback?: HandlerCallback
   ) => {
-    const content = (message.content || {}) as localStrategyTestHarnessActionContent;
+    const content = (message.content || {}) as LocalStrategyTestHarnessContent;
     const chainFamily = content.chainFamily || 'cross';
-    const traceId = content.requestId || 'saiso-' + Date.now().toString(36);
+    const requestId = content.requestId || 'saiso-strategy-' + Date.now().toString(36);
     const startedAt = Date.now();
+    const strategy = content.strategy || readSetting(runtime, 'STRATEGY_NAME', 'default');
+    const scenario = content.scenario || content.payload?.scenario || {};
+    const steps = (scenario as { steps?: Array<{ action?: string; price?: number; amount?: number }> }).steps || [];
+    const result = runScenario(strategy, steps);
 
     const response = {
       success: true,
@@ -35,45 +80,25 @@ export const localStrategyTestHarnessAction: Action = {
       chainFamily,
       data: {
         dryRun: content.dryRun !== false,
+        scenario: (scenario as { name?: string }).name || 'default',
+        result,
         payload: content.payload || {},
-        policy: {
-          maxCostUsd: content.maxCostUsd ?? Number(runtime.getSetting('PAYMENT_MAX_PER_REQUEST_USD') || 5),
-          minTrustScore: content.minTrustScore ?? Number(runtime.getSetting('TRUST_MIN_SCORE') || 0.65),
-        },
       },
       meta: {
-        requestId: traceId,
-        traceId,
+        requestId,
+        traceId: requestId,
         latencyMs: Date.now() - startedAt,
       },
     };
 
     if (callback) {
       callback({
-        text: '[local_strategy_test_harness] completed for ' + chainFamily + ' (dryRun=' + String(response.data.dryRun) + ')',
+        text: `[local_strategy_test_harness] strategy '${strategy}' completed with PnL ${result.pnl}`,
         content: response as any,
       });
     }
 
     return response as any;
   },
-  examples: [
-    [
-      {
-        user: '{{user1}}',
-        content: {
-          text: 'Run local_strategy_test_harness in dry-run mode',
-          chainFamily: 'evm',
-          dryRun: true,
-        },
-      },
-      {
-        user: '{{agent}}',
-        content: {
-          text: 'Running local_strategy_test_harness with preconfigured safety guardrails.',
-          action: 'LOCAL_STRATEGY_TEST_HARNESS',
-        },
-      },
-    ],
-  ] as ActionExample[][],
+  examples: [] as ActionExample[][],
 };

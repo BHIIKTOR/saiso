@@ -20,7 +20,9 @@
     }
   ],
   "integration": {
-    "actions": ["privyWebhookIngestAction"],
+    "actions": [
+      "privyWebhookIngestAction"
+    ],
     "imports": [
       "import { privyWebhookIngestAction } from './actions/privyWebhookIngest.js';"
     ]
@@ -47,5 +49,8 @@
   "examples": [
     "Run privy_webhook_ingest for an EVM wallet",
     "Run privy_webhook_ingest for an SVM wallet"
+  ],
+  "featureDependencies": [
+    "privy_client_base"
   ]
 }

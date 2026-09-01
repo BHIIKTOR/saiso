@@ -284,8 +284,16 @@ Execution semantics:
 
 - `quote_and_swap` fetches quotes by default. With `execute: true`, it builds an executable transaction payload but does not sign or broadcast.
 - `tx_lifecycle_manager` is read-only and classifies pending, confirmed, finalized, failed, or unknown transaction state.
-- `policy_guardrails_runtime` and `preflight_risk_checks` are decision layers; they do not submit transactions.
-- Privy signing and transfer features call Privy APIs and can authorize or move real assets when configured with live credentials. Use sandbox credentials or quote/read-only flows for first validation.
+- `policy_guardrails_runtime`, `preflight_risk_checks`, and `allowance_and_permission_manager` are decision layers; they do not submit transactions.
+- `cross_chain_intent_router` plans multi-step routes (prepare → bridge → settle) and validates cost budgets; it does not execute the route.
+- `event_ingest_and_triggers` normalizes incoming events and matches them against configured trigger rules.
+- `local_strategy_test_harness` runs deterministic buy/sell scenarios locally and reports simulated PnL.
+- `observability_and_incident_hooks` emits structured metric/trace/incident signals with severity classification.
+- `oracle_and_market_data_layer` normalizes price/liquidity feeds and flags stale data against a freshness threshold.
+- `portfolio_state_and_pnl` computes position values, PnL, and allocation drift from provided balances and prices.
+- `scheduler_and_workflow_runner` executes checkpointed multi-step workflows and reports step status.
+- Privy signing, transfer, accounts, swap, intents, policy controls, and advanced EVM execution features call Privy APIs and can authorize or move real assets when configured with live credentials. Use sandbox credentials or quote/read-only flows for first validation.
+- `privy_webhook_ingest` verifies webhook signatures (HMAC-SHA256) and dispatches typed events.
 - `gas_estimation` reads RPC fee data and optional price APIs; it does not submit transactions.
 
 ---
@@ -343,6 +351,11 @@ saiso/
 ├── packages/
 │   ├── saiso-cli/           # CLI tool with all commands
 │   ├── saiso-core/          # Core utilities and scaffolding
+│   ├── saiso-plugin-sdk/    # Plugin SDK and manifest contracts
+│   ├── saiso-svm-mcp-server/# First-party SVM MCP server
+│   ├── heretic-saiso/       # Heretic plugin (chat relay, policy, state)
+│   ├── heretic-saiso-protocol-client/  # Heretic daemon protocol client
+│   └── heretic-saiso-runtime/          # Heretic runtime worker
 │   └── (archived legacy packages under spec/old-saiso/archive/)
 ├── templates/
 │   ├── agent-evm/          # EVM agent template
@@ -472,8 +485,9 @@ saiso switch-env mainnet
 ### 🚧 Next Phase
 - [x] Complete testing framework (`saiso test` command)
 - [x] User agent testing suite with extensible test generation
-- [ ] Unit test coverage for all packages
-- [ ] Behavior testing framework
+- [x] Unit test coverage for all packages
+- [x] Full feature template implementations (all 26 features with real logic)
+- [ ] Behavior testing framework (partial: `saiso test add` generates agent/MCP/actions templates)
 - [ ] Agent self-debugging capabilities
 - [ ] Auto-documentation generation
 - [ ] Advanced deployment automation

@@ -1,79 +1,103 @@
 import { Action, IAgentRuntime, Memory, State, HandlerCallback, ActionExample } from '@elizaos/core';
 
-interface crossChainIntentRouterActionContent {
+interface CrossChainIntentRouterContent {
   chainFamily?: 'evm' | 'svm' | 'cross';
   dryRun?: boolean;
   requestId?: string;
-  payload?: Record<string, unknown>;
+  intent?: string;
+  sourceChain?: string;
+  destinationChain?: string;
+  amountUsd?: number;
   maxCostUsd?: number;
   minTrustScore?: number;
+  payload?: Record<string, unknown>;
+}
+
+function readSetting(runtime: IAgentRuntime, key: string, fallback = ''): string {
+  const value = runtime.getSetting(key);
+  return typeof value === 'string' && value.trim() ? value.trim() : fallback;
+}
+
+function readNumber(runtime: IAgentRuntime, key: string, fallback: number): number {
+  const value = Number(readSetting(runtime, key));
+  return Number.isFinite(value) ? value : fallback;
+}
+
+function buildRoutePlan(content: CrossChainIntentRouterContent) {
+  const source = content.sourceChain || 'evm';
+  const destination = content.destinationChain || 'svm';
+  const intent = content.intent || 'transfer';
+  const steps: Array<{ chain: string; action: string; status: 'pending' }> = [];
+
+  if (source !== destination) {
+    steps.push({ chain: source, action: `${intent}:prepare`, status: 'pending' });
+    steps.push({ chain: 'bridge', action: 'bridge:lock-and-mint', status: 'pending' });
+    steps.push({ chain: destination, action: `${intent}:settle`, status: 'pending' });
+  } else {
+    steps.push({ chain: source, action: `${intent}:execute`, status: 'pending' });
+  }
+
+  return { source, destination, intent, steps };
 }
 
 export const crossChainIntentRouterAction: Action = {
   name: 'CROSS_CHAIN_INTENT_ROUTER',
-  similes: ['CROSS_CHAIN_INTENT_ROUTER', 'CROSS_CHAIN_INTENT_ROUTER_RUN', 'CROSS_CHAIN_INTENT_ROUTER_EXECUTE'],
-  description: 'Route intent-driven workflows across chains',
+  similes: ['CROSS_CHAIN_INTENT_ROUTER', 'CROSS_CHAIN_ROUTER', 'INTENT_ROUTER', 'CROSS_CHAIN_INTENT'],
+  description: 'Plan and execute intent paths across multiple chains',
   validate: async (_runtime: IAgentRuntime, message: Memory) => {
-    const content = (message.content || {}) as crossChainIntentRouterActionContent;
-    return typeof content === 'object';
+    const content = (message.content || {}) as CrossChainIntentRouterContent;
+    return typeof content === 'object' && content !== null;
   },
   handler: async (
     runtime: IAgentRuntime,
     message: Memory,
-    _state: State,
+    _state: State | undefined,
     _options: any,
-    callback: HandlerCallback
+    callback?: HandlerCallback
   ) => {
-    const content = (message.content || {}) as crossChainIntentRouterActionContent;
+    const content = (message.content || {}) as CrossChainIntentRouterContent;
     const chainFamily = content.chainFamily || 'cross';
-    const traceId = content.requestId || 'saiso-' + Date.now().toString(36);
+    const requestId = content.requestId || 'saiso-intent-' + Date.now().toString(36);
     const startedAt = Date.now();
+    const amountUsd = Number(content.amountUsd ?? content.payload?.amountUsd ?? 0);
+    const maxCostUsd = content.maxCostUsd ?? readNumber(runtime, 'PAYMENT_MAX_PER_REQUEST_USD', 5);
+    const minTrustScore = content.minTrustScore ?? readNumber(runtime, 'TRUST_MIN_SCORE', 0.65);
+    const plan = buildRoutePlan(content);
+    const costWithinBudget = amountUsd <= maxCostUsd;
+    const violations: string[] = [];
+
+    if (!costWithinBudget) {
+      violations.push(`amountUsd ${amountUsd} exceeds maxCostUsd ${maxCostUsd}`);
+    }
 
     const response = {
-      success: true,
+      success: costWithinBudget,
       operation: 'cross_chain_intent_router',
       chainFamily,
       data: {
         dryRun: content.dryRun !== false,
+        plan,
+        policy: { amountUsd, maxCostUsd, minTrustScore },
+        violations,
         payload: content.payload || {},
-        policy: {
-          maxCostUsd: content.maxCostUsd ?? Number(runtime.getSetting('PAYMENT_MAX_PER_REQUEST_USD') || 5),
-          minTrustScore: content.minTrustScore ?? Number(runtime.getSetting('TRUST_MIN_SCORE') || 0.65),
-        },
       },
       meta: {
-        requestId: traceId,
-        traceId,
+        requestId,
+        traceId: requestId,
         latencyMs: Date.now() - startedAt,
       },
     };
 
     if (callback) {
       callback({
-        text: '[cross_chain_intent_router] completed for ' + chainFamily + ' (dryRun=' + String(response.data.dryRun) + ')',
+        text: costWithinBudget
+          ? `[cross_chain_intent_router] route planned across ${plan.steps.length} steps`
+          : `[cross_chain_intent_router] route blocked: ${violations.join('; ')}`,
         content: response as any,
       });
     }
 
     return response as any;
   },
-  examples: [
-    [
-      {
-        user: '{{user1}}',
-        content: {
-          text: 'Run cross_chain_intent_router in dry-run mode',
-          chainFamily: 'evm',
-          dryRun: true,
-        },
-      },
-      {
-        user: '{{agent}}',
-        content: {
-          text: 'Running cross_chain_intent_router with preconfigured safety guardrails.',
-          action: 'CROSS_CHAIN_INTENT_ROUTER',
-        },
-      },
-    ],
-  ] as ActionExample[][],
+  examples: [] as ActionExample[][],
 };

@@ -3,8 +3,8 @@
 ## What It Adds
 
 1. Create and route transfer or RPC intents with status polling.
-2. Chain-agnostic action envelope for evm and svm.
-3. Idempotency and request-expiry metadata for mutating workflows.
+2. Update intent policies and key quorums.
+3. Chain-agnostic action envelope for evm and svm.
 
 ## Endpoint Surface
 
@@ -17,9 +17,9 @@
 
 ## Usage
 
-1. Install with saiso add privy_intents_router.
-2. Invoke action PRIVY_INTENTS_ROUTER with wallet and network context.
-3. Extend handler internals with concrete Privy API calls.
+1. Install with `saiso add privy_intents_router`.
+2. Invoke action `PRIVY_INTENTS_ROUTER` with an operation (`transfer`, `rpc`, `get`, `list`, `update-policy`, or `update-key-quorum`) and intent context.
+3. Requires `PRIVY_APP_ID` and `PRIVY_APP_SECRET`; transfer intents can move real assets when configured with live credentials.
 
 ## Output Contract
 

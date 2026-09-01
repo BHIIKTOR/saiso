@@ -2,7 +2,7 @@
 
 ## What It Adds
 
-1. Create and manage accounts plus account balance retrieval.
+1. Create, get, list, update, and query balances for Privy accounts.
 2. Chain-agnostic action envelope for evm and svm.
 3. Idempotency and request-expiry metadata for mutating workflows.
 
@@ -16,9 +16,9 @@
 
 ## Usage
 
-1. Install with saiso add privy_accounts.
-2. Invoke action PRIVY_ACCOUNTS with wallet and network context.
-3. Extend handler internals with concrete Privy API calls.
+1. Install with `saiso add privy_accounts`.
+2. Invoke action `PRIVY_ACCOUNTS` with an operation and account context.
+3. Requires `PRIVY_APP_ID` and `PRIVY_APP_SECRET`; can move real assets when configured with live credentials.
 
 ## Output Contract
 

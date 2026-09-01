@@ -1,85 +1,93 @@
 import { Action, IAgentRuntime, Memory, State, HandlerCallback, ActionExample } from '@elizaos/core';
+import { createHmac, timingSafeEqual } from 'node:crypto';
 
-interface privyWebhookIngestActionContent {
+interface PrivyWebhookIngestContent {
   chainFamily?: 'evm' | 'svm';
-  walletId?: string;
-  walletAddress?: string;
-  network?: string;
-  payload?: Record<string, unknown>;
+  dryRun?: boolean;
   requestId?: string;
-  idempotencyKey?: string;
-  expiresAt?: string;
+  signature?: string;
+  event?: {
+    type?: string;
+    payload?: Record<string, unknown>;
+  };
+  payload?: Record<string, unknown>;
+}
+
+function readSetting(runtime: IAgentRuntime, key: string, fallback = ''): string {
+  const value = runtime.getSetting(key);
+  return typeof value === 'string' && value.trim() ? value.trim() : fallback;
+}
+
+function verifySignature(secret: string, signature: string, body: string): boolean {
+  if (!secret || !signature) {
+    return false;
+  }
+  const expected = createHmac('sha256', secret).update(body).digest('hex');
+  const expectedBuffer = Buffer.from(expected, 'hex');
+  const signatureBuffer = Buffer.from(signature, 'hex');
+  if (expectedBuffer.length !== signatureBuffer.length) {
+    return false;
+  }
+  return timingSafeEqual(expectedBuffer, signatureBuffer);
+}
+
+function normalizeEventType(raw?: string): string {
+  return String(raw || 'unknown').toLowerCase().replace(/\s+/g, '_');
 }
 
 export const privyWebhookIngestAction: Action = {
   name: 'PRIVY_WEBHOOK_INGEST',
-  similes: ['PRIVY_WEBHOOK_INGEST', 'PRIVY_WEBHOOK_INGEST_RUN', 'PRIVY_WEBHOOK_INGEST_EXECUTE'],
-  description: 'Ingest and verify Privy webhook event payloads',
+  similes: ['PRIVY_WEBHOOK_INGEST', 'PRIVY_WEBHOOK', 'WEBHOOK_INGEST', 'PRIVY_EVENTS'],
+  description: 'Verify webhook signatures and dispatch typed wallet, tx, and action events',
   validate: async (_runtime: IAgentRuntime, message: Memory) => {
-    const content = (message.content || {}) as privyWebhookIngestActionContent;
-    if (typeof content !== 'object' || content === null) {
-      return false;
-    }
-    return content.chainFamily === undefined || content.chainFamily === 'evm' || content.chainFamily === 'svm';
+    const content = (message.content || {}) as PrivyWebhookIngestContent;
+    return typeof content === 'object' && content !== null
+      && (content.chainFamily === undefined || content.chainFamily === 'evm' || content.chainFamily === 'svm');
   },
   handler: async (
     runtime: IAgentRuntime,
     message: Memory,
-    _state: State,
+    _state: State | undefined,
     _options: any,
-    callback: HandlerCallback
+    callback?: HandlerCallback
   ) => {
-    const content = (message.content || {}) as privyWebhookIngestActionContent;
+    const content = (message.content || {}) as PrivyWebhookIngestContent;
     const startedAt = Date.now();
     const chainFamily = content.chainFamily || 'evm';
-    const requestId = content.requestId || 'saiso-privy-' + startedAt.toString(36);
-    const idempotencyKey = content.idempotencyKey || 'idem-' + startedAt.toString(36);
-    const expiresAt = content.expiresAt || new Date(startedAt + Number(runtime.getSetting('PRIVY_REQUEST_EXPIRY_MS') || 120000)).toISOString();
+    const requestId = content.requestId || 'saiso-privy-webhook-' + startedAt.toString(36);
+    const secret = readSetting(runtime, 'PRIVY_WEBHOOK_SECRET');
+    const event = content.event || content.payload?.event || {};
+    const eventType = normalizeEventType((event as { type?: string }).type);
+    const body = JSON.stringify(content.payload || content.event || {});
+    const signature = content.signature || '';
+    const verified = verifySignature(secret, signature, body);
 
     const response = {
-      success: true,
+      success: verified,
       operation: 'privy_webhook_ingest',
       chainFamily,
       requestId,
       data: {
-        walletId: content.walletId,
-        walletAddress: content.walletAddress,
-        network: content.network,
+        dryRun: content.dryRun !== false,
+        verified,
+        event: { type: eventType, payload: (event as { payload?: Record<string, unknown> }).payload || {} },
         payload: content.payload || {},
       },
       meta: {
-        idempotencyKey,
-        expiresAt,
         latencyMs: Date.now() - startedAt,
       },
     };
 
     if (callback) {
       callback({
-        text: '[privy_webhook_ingest] completed for ' + chainFamily,
+        text: verified
+          ? `[privy_webhook_ingest] verified ${eventType} event`
+          : '[privy_webhook_ingest] signature verification failed',
         content: response as any,
       });
     }
 
     return response as any;
   },
-  examples: [
-    [
-      {
-        user: '{{user1}}',
-        content: {
-          text: 'Run privy_webhook_ingest for an EVM wallet',
-          chainFamily: 'evm',
-          walletId: 'wallet_123',
-        },
-      },
-      {
-        user: '{{agent}}',
-        content: {
-          text: 'Running privy_webhook_ingest with Privy-compatible request envelope.',
-          action: 'PRIVY_WEBHOOK_INGEST',
-        },
-      },
-    ],
-  ] as ActionExample[][],
+  examples: [] as ActionExample[][],
 };

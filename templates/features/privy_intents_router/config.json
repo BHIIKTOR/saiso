@@ -20,7 +20,9 @@
     }
   ],
   "integration": {
-    "actions": ["privyIntentsRouterAction"],
+    "actions": [
+      "privyIntentsRouterAction"
+    ],
     "imports": [
       "import { privyIntentsRouterAction } from './actions/privyIntentsRouter.js';"
     ]
@@ -47,5 +49,8 @@
   "examples": [
     "Run privy_intents_router for an EVM wallet",
     "Run privy_intents_router for an SVM wallet"
+  ],
+  "featureDependencies": [
+    "privy_client_base"
   ]
 }

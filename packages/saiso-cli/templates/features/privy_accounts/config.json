@@ -20,7 +20,9 @@
     }
   ],
   "integration": {
-    "actions": ["privyAccountsAction"],
+    "actions": [
+      "privyAccountsAction"
+    ],
     "imports": [
       "import { privyAccountsAction } from './actions/privyAccounts.js';"
     ]
@@ -47,5 +49,8 @@
   "examples": [
     "Run privy_accounts for an EVM wallet",
     "Run privy_accounts for an SVM wallet"
+  ],
+  "featureDependencies": [
+    "privy_client_base"
   ]
 }

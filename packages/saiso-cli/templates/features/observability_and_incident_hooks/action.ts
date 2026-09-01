@@ -1,33 +1,63 @@
 import { Action, IAgentRuntime, Memory, State, HandlerCallback, ActionExample } from '@elizaos/core';
 
-interface observabilityIncidentHooksActionContent {
+interface ObservabilityIncidentHooksContent {
   chainFamily?: 'evm' | 'svm' | 'cross';
   dryRun?: boolean;
   requestId?: string;
+  signal?: {
+    type?: 'metric' | 'trace' | 'incident';
+    name?: string;
+    severity?: 'info' | 'warning' | 'critical';
+    value?: number;
+    tags?: Record<string, string>;
+  };
   payload?: Record<string, unknown>;
-  maxCostUsd?: number;
-  minTrustScore?: number;
+}
+
+function readSetting(runtime: IAgentRuntime, key: string, fallback = ''): string {
+  const value = runtime.getSetting(key);
+  return typeof value === 'string' && value.trim() ? value.trim() : fallback;
+}
+
+function classifySeverity(raw?: string): 'info' | 'warning' | 'critical' {
+  const normalized = String(raw || 'info').toLowerCase();
+  if (normalized === 'critical' || normalized === 'warning') {
+    return normalized;
+  }
+  return 'info';
+}
+
+function buildSignal(signal: ObservabilityIncidentHooksContent['signal']) {
+  const type = signal?.type || 'metric';
+  const name = signal?.name || 'unnamed';
+  const severity = classifySeverity(signal?.severity);
+  const value = Number(signal?.value ?? 0);
+  const tags = signal?.tags || {};
+  const incident = severity === 'critical' || (type === 'incident' && severity !== 'info');
+  return { type, name, severity, value, tags, incident };
 }
 
 export const observabilityIncidentHooksAction: Action = {
-  name: 'OBSERVABILITY_INCIDENT_HOOKS',
-  similes: ['OBSERVABILITY_INCIDENT_HOOKS', 'OBSERVABILITY_INCIDENT_HOOKS_RUN', 'OBSERVABILITY_INCIDENT_HOOKS_EXECUTE'],
-  description: 'Emit structured telemetry and incident hooks',
+  name: 'OBSERVABILITY_AND_INCIDENT_HOOKS',
+  similes: ['OBSERVABILITY_AND_INCIDENT_HOOKS', 'OBSERVABILITY', 'INCIDENT_HOOKS', 'METRICS_HOOKS'],
+  description: 'Emit structured metrics, traces, and incident signals',
   validate: async (_runtime: IAgentRuntime, message: Memory) => {
-    const content = (message.content || {}) as observabilityIncidentHooksActionContent;
-    return typeof content === 'object';
+    const content = (message.content || {}) as ObservabilityIncidentHooksContent;
+    return typeof content === 'object' && content !== null;
   },
   handler: async (
     runtime: IAgentRuntime,
     message: Memory,
-    _state: State,
+    _state: State | undefined,
     _options: any,
-    callback: HandlerCallback
+    callback?: HandlerCallback
   ) => {
-    const content = (message.content || {}) as observabilityIncidentHooksActionContent;
+    const content = (message.content || {}) as ObservabilityIncidentHooksContent;
     const chainFamily = content.chainFamily || 'cross';
-    const traceId = content.requestId || 'saiso-' + Date.now().toString(36);
+    const requestId = content.requestId || 'saiso-obs-' + Date.now().toString(36);
     const startedAt = Date.now();
+    const signal = buildSignal(content.signal || (content.payload?.signal as ObservabilityIncidentHooksContent['signal']));
+    const hookUrl = readSetting(runtime, 'OBSERVABILITY_HOOK_URL');
 
     const response = {
       success: true,
@@ -35,45 +65,27 @@ export const observabilityIncidentHooksAction: Action = {
       chainFamily,
       data: {
         dryRun: content.dryRun !== false,
+        signal,
+        hookConfigured: Boolean(hookUrl),
         payload: content.payload || {},
-        policy: {
-          maxCostUsd: content.maxCostUsd ?? Number(runtime.getSetting('PAYMENT_MAX_PER_REQUEST_USD') || 5),
-          minTrustScore: content.minTrustScore ?? Number(runtime.getSetting('TRUST_MIN_SCORE') || 0.65),
-        },
       },
       meta: {
-        requestId: traceId,
-        traceId,
+        requestId,
+        traceId: requestId,
         latencyMs: Date.now() - startedAt,
       },
     };
 
     if (callback) {
       callback({
-        text: '[observability_and_incident_hooks] completed for ' + chainFamily + ' (dryRun=' + String(response.data.dryRun) + ')',
+        text: signal.incident
+          ? `[observability_and_incident_hooks] incident signal '${signal.name}' at ${signal.severity}`
+          : `[observability_and_incident_hooks] ${signal.type} '${signal.name}' emitted`,
         content: response as any,
       });
     }
 
     return response as any;
   },
-  examples: [
-    [
-      {
-        user: '{{user1}}',
-        content: {
-          text: 'Run observability_and_incident_hooks in dry-run mode',
-          chainFamily: 'evm',
-          dryRun: true,
-        },
-      },
-      {
-        user: '{{agent}}',
-        content: {
-          text: 'Running observability_and_incident_hooks with preconfigured safety guardrails.',
-          action: 'OBSERVABILITY_INCIDENT_HOOKS',
-        },
-      },
-    ],
-  ] as ActionExample[][],
+  examples: [] as ActionExample[][],
 };

@@ -20,7 +20,9 @@
     }
   ],
   "integration": {
-    "actions": ["privyPolicyControlsAction"],
+    "actions": [
+      "privyPolicyControlsAction"
+    ],
     "imports": [
       "import { privyPolicyControlsAction } from './actions/privyPolicyControls.js';"
     ]
@@ -47,5 +49,8 @@
   "examples": [
     "Run privy_policy_controls for an EVM wallet",
     "Run privy_policy_controls for an SVM wallet"
+  ],
+  "featureDependencies": [
+    "privy_client_base"
   ]
 }

@@ -177,7 +177,7 @@ Endpoint mapping:
 
 Purpose:
 
-1. Scaffold policy/rules/condition set/key quorum administration flows.
+1. Manage policy/rules/condition set/key quorum administration flows.
 
 Endpoint mapping:
 
@@ -247,7 +247,7 @@ Endpoint mapping:
 
 Purpose:
 
-1. Scaffold advanced EVM execution pathways.
+1. Execute advanced EVM pathways (7702 auth, user operations, send-calls).
 
 Endpoint mapping:
 

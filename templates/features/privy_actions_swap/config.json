@@ -20,7 +20,9 @@
     }
   ],
   "integration": {
-    "actions": ["privyActionsSwapAction"],
+    "actions": [
+      "privyActionsSwapAction"
+    ],
     "imports": [
       "import { privyActionsSwapAction } from './actions/privyActionsSwap.js';"
     ]
@@ -47,5 +49,8 @@
   "examples": [
     "Run privy_actions_swap for an EVM wallet",
     "Run privy_actions_swap for an SVM wallet"
+  ],
+  "featureDependencies": [
+    "privy_client_base"
   ]
 }

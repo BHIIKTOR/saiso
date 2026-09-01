@@ -2,9 +2,9 @@
 
 ## What It Adds
 
-1. Verify webhook signatures and dispatch typed wallet, tx, and action events.
-2. Chain-agnostic action envelope for evm and svm.
-3. Idempotency and request-expiry metadata for mutating workflows.
+1. Verify webhook signatures using HMAC-SHA256 with timing-safe comparison.
+2. Dispatch typed wallet, transaction, action, user, and intents events.
+3. Chain-agnostic action envelope for evm and svm.
 
 ## Endpoint Surface
 
@@ -16,9 +16,9 @@
 
 ## Usage
 
-1. Install with saiso add privy_webhook_ingest.
-2. Invoke action PRIVY_WEBHOOK_INGEST with wallet and network context.
-3. Extend handler internals with concrete Privy API calls.
+1. Install with `saiso add privy_webhook_ingest`.
+2. Invoke action `PRIVY_WEBHOOK_INGEST` with a signature and event payload.
+3. Requires `PRIVY_WEBHOOK_SECRET` to verify signatures.
 
 ## Output Contract
 
@@ -26,6 +26,6 @@
 2. operation
 3. chainFamily
 4. requestId
-5. data
-6. meta.idempotencyKey
-7. meta.expiresAt
+5. data.verified
+6. data.event
+7. meta
