@@ -14,14 +14,12 @@ interface OracleMarketDataContent {
   payload?: Record<string, unknown>;
 }
 
-function readSetting(runtime: IAgentRuntime, key: string, fallback = ''): string {
-  const value = runtime.getSetting(key);
-  return typeof value === 'string' && value.trim() ? value.trim() : fallback;
-}
-
 function readNumber(runtime: IAgentRuntime, key: string, fallback: number): number {
-  const value = Number(readSetting(runtime, key));
-  return Number.isFinite(value) ? value : fallback;
+  const value = runtime.getSetting(key);
+  if (value === undefined || value === null || (typeof value === 'string' && !value.trim())) {
+    return fallback;
+  }
+  return typeof value === 'string' || typeof value === 'number' ? Number(value) : NaN;
 }
 
 function normalizeFeed(feed: { symbol?: string; price?: number; timestamp?: string; source?: string }, maxStalenessMs: number) {
@@ -62,9 +60,11 @@ export const oracleMarketDataLayerAction: Action = {
     const maxStalenessMs = content.maxStalenessMs ?? readNumber(runtime, 'ORACLE_MAX_STALENESS_MS', 300000);
     const feeds = ((content.feeds || content.payload?.feeds) as Array<{ symbol?: string; price?: number; timestamp?: string; source?: string }> | undefined || []).map((feed) => normalizeFeed(feed, maxStalenessMs));
     const staleFeeds = feeds.filter((feed) => feed.stale);
+    const validThreshold = Number.isFinite(maxStalenessMs) && maxStalenessMs >= 0;
 
     const response = {
-      success: staleFeeds.length === 0,
+      success: validThreshold && staleFeeds.length === 0,
+      ...(!validThreshold ? { error: { code: 'invalid_freshness_threshold', message: 'maxStalenessMs must be finite and nonnegative' } } : {}),
       operation: 'oracle_and_market_data_layer',
       chainFamily,
       data: {
@@ -83,7 +83,9 @@ export const oracleMarketDataLayerAction: Action = {
 
     if (callback) {
       callback({
-        text: staleFeeds.length > 0
+        text: !validThreshold
+          ? '[oracle_and_market_data_layer] invalid freshness threshold'
+          : staleFeeds.length > 0
           ? `[oracle_and_market_data_layer] ${staleFeeds.length} stale feed(s) detected`
           : `[oracle_and_market_data_layer] ${feeds.length} feed(s) normalized`,
         content: response as any,

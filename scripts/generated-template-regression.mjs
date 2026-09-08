@@ -40,16 +40,21 @@ async function run(command, args, cwd, options = {}) {
     cwd,
     env: process.env,
     stdio: options.quiet ? 'pipe' : 'inherit',
+    timeout: 120000,
   });
+  let output = '';
+  child.stdout?.on('data', (chunk) => { output += chunk; });
+  child.stderr?.on('data', (chunk) => { output += chunk; });
 
   await new Promise((resolve, reject) => {
     child.on('error', reject);
     child.on('close', (code) => {
       if (code === 0) {
+        if (!options.quiet && output) process.stdout.write(output);
         resolve();
         return;
       }
-      reject(new Error(`${command} ${args.join(' ')} failed with exit code ${code}`));
+      reject(new Error(`${command} ${args.join(' ')} failed with exit code ${code}\n${output}`));
     });
   });
 }
@@ -110,6 +115,21 @@ async function main() {
   await run('npm', ['--workspace', 'packages/saiso-cli', 'run', 'build'], repoRoot);
 
   const tempRoot = await mkdtemp(path.join(os.tmpdir(), 'saiso-generated-template-regression-'));
+  const correctedFeatures = [
+    'allowance_and_permission_manager',
+    'cross_chain_intent_router',
+    'event_ingest_and_triggers',
+    'local_strategy_test_harness',
+    'observability_and_incident_hooks',
+    'oracle_and_market_data_layer',
+    'portfolio_state_and_pnl',
+    'scheduler_and_workflow_runner',
+    'privy_accounts',
+    'privy_actions_swap',
+    'privy_intents_router',
+    'privy_policy_controls',
+    'privy_webhook_ingest',
+  ];
   const evmProject = await createProject(tempRoot, 'smoke-evm');
   await addFeatures(evmProject, [
     'quote_and_swap',
@@ -121,6 +141,8 @@ async function main() {
     'privy_transfer',
     'privy_signing_evm',
     'gas_estimation',
+    ...correctedFeatures,
+    'privy_advanced_execution_evm',
   ]);
   await verifyGeneratedProject(evmProject);
 
@@ -134,6 +156,7 @@ async function main() {
     'quote_and_swap',
     'tx_lifecycle_manager',
     'privy_signing_svm',
+    ...correctedFeatures,
   ]);
   await verifyGeneratedProject(svmProject);
   await assertCommandFails(

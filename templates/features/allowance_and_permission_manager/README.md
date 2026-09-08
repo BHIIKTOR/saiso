@@ -15,6 +15,8 @@
 - `maxAllowanceUsd`: override the configured `ALLOWANCE_MAX_USD` cap
 - `allowedTokens` / `blockedSpenders`: inline allow/block lists (merged with env config)
 
+Amounts and caps must be finite and nonnegative; malformed values produce a blocked decision. The cap defaults to 1000 when `ALLOWANCE_MAX_USD` is unset or blank. An explicit zero cap is preserved and blocks positive amounts. Overrides are policy inputs for trusted callers; this action is not an authorization boundary between a user and administrator policy.
+
 ## Usage
 
 1. Install with `saiso add allowance_and_permission_manager`.

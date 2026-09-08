@@ -1,4 +1,5 @@
 import { Action, IAgentRuntime, Memory, State, HandlerCallback, ActionExample } from '@elizaos/core';
+import { randomUUID } from 'node:crypto';
 import { createPrivyClient } from '../../features/privy_client_base/client';
 
 interface PrivyAdvancedExecutionEvmContent {
@@ -9,6 +10,7 @@ interface PrivyAdvancedExecutionEvmContent {
   requestId?: string;
   idempotencyKey?: string;
   expiresAt?: string;
+  authorizationSignature?: string;
 }
 
 function readSetting(runtime: IAgentRuntime, key: string, fallback = ''): string {
@@ -50,30 +52,22 @@ export const privyAdvancedExecutionEvmAction: Action = {
     const content = (message.content || {}) as PrivyAdvancedExecutionEvmContent;
     const startedAt = Date.now();
     const requestId = content.requestId || 'saiso-privy-evm-' + startedAt.toString(36);
-    const idempotencyKey = content.idempotencyKey || 'idem-evm-' + startedAt.toString(36);
-    const expiresAt = content.expiresAt || new Date(startedAt + Number(readSetting(runtime, 'PRIVY_REQUEST_EXPIRY_MS', '120000'))).toISOString();
+    const idempotencyKey = content.idempotencyKey || randomUUID();
+    let expiresAt = content.expiresAt;
     const operation = content.operation || 'auth-signature';
 
     try {
+      expiresAt ??= new Date(startedAt + Number(readSetting(runtime, 'PRIVY_REQUEST_EXPIRY_MS', '120000'))).toISOString();
       const client = createClient(runtime);
-      let path = '/wallets/advanced/evm/auth-signature';
-      let method: 'GET' | 'POST' = 'POST';
-      let body: unknown = {
-        network: content.network,
-        ...content.payload,
-      };
-
-      if (operation === 'user-operation') {
-        if (!content.walletId) throw new Error('walletId is required for user-operation');
-        path = `/wallets/${encodeURIComponent(content.walletId)}/advanced/evm/user-operation`;
-        method = 'POST';
-      } else if (operation === 'send-call') {
-        if (!content.walletId) throw new Error('walletId is required for send-call');
-        path = `/wallets/${encodeURIComponent(content.walletId)}/advanced/evm/send-call`;
-        method = 'POST';
-      }
-
-      const result = await client.request(path, { method, body, idempotencyKey, expiresAt });
+      if (!['auth-signature', 'user-operation', 'send-call'].includes(operation)) throw new Error('Unsupported advanced EVM operation');
+      if (!content.walletId) throw new Error('walletId is required for advanced EVM operations');
+      if (!content.payload?.params) throw new Error('payload.params is required in Privy RPC format');
+      const rpcMethod = operation === 'auth-signature' ? 'eth_sign7702Authorization'
+        : operation === 'user-operation' ? 'eth_signUserOperation' : 'wallet_sendCalls';
+      const path = `/wallets/${encodeURIComponent(content.walletId)}/rpc`;
+      const body = { ...(operation === 'send-call' ? { caip2: content.network } : {}), ...content.payload, method: rpcMethod };
+      const headers = content.authorizationSignature ? { 'privy-authorization-signature': content.authorizationSignature } : undefined;
+      const result = await client.request(path, { method: 'POST', body, idempotencyKey, expiresAt, headers });
       const response = {
         success: true,
         operation: 'privy_advanced_execution_evm',

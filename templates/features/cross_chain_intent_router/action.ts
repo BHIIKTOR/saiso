@@ -13,14 +13,12 @@ interface CrossChainIntentRouterContent {
   payload?: Record<string, unknown>;
 }
 
-function readSetting(runtime: IAgentRuntime, key: string, fallback = ''): string {
-  const value = runtime.getSetting(key);
-  return typeof value === 'string' && value.trim() ? value.trim() : fallback;
-}
-
 function readNumber(runtime: IAgentRuntime, key: string, fallback: number): number {
-  const value = Number(readSetting(runtime, key));
-  return Number.isFinite(value) ? value : fallback;
+  const value = runtime.getSetting(key);
+  if (value === undefined || value === null || (typeof value === 'string' && !value.trim())) {
+    return fallback;
+  }
+  return typeof value === 'string' || typeof value === 'number' ? Number(value) : NaN;
 }
 
 function buildRoutePlan(content: CrossChainIntentRouterContent) {
@@ -63,12 +61,21 @@ export const crossChainIntentRouterAction: Action = {
     const maxCostUsd = content.maxCostUsd ?? readNumber(runtime, 'PAYMENT_MAX_PER_REQUEST_USD', 5);
     const minTrustScore = content.minTrustScore ?? readNumber(runtime, 'TRUST_MIN_SCORE', 0.65);
     const plan = buildRoutePlan(content);
-    const costWithinBudget = amountUsd <= maxCostUsd;
     const violations: string[] = [];
 
-    if (!costWithinBudget) {
+    if (!Number.isFinite(amountUsd) || amountUsd < 0) {
+      violations.push('amountUsd must be finite and nonnegative');
+    }
+    if (!Number.isFinite(maxCostUsd) || maxCostUsd < 0) {
+      violations.push('maxCostUsd must be finite and nonnegative');
+    }
+    if (!Number.isFinite(minTrustScore) || minTrustScore < 0 || minTrustScore > 1) {
+      violations.push('minTrustScore must be between 0 and 1');
+    }
+    if (amountUsd > maxCostUsd) {
       violations.push(`amountUsd ${amountUsd} exceeds maxCostUsd ${maxCostUsd}`);
     }
+    const costWithinBudget = violations.length === 0;
 
     const response = {
       success: costWithinBudget,

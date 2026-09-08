@@ -1,30 +1,18 @@
 # Privy Policy Controls
 
-## What It Adds
+Invoke `PRIVY_POLICY_CONTROLS` with an operation and the provider request body in `payload`.
 
-1. Manage policies, rules, condition sets, and key quorums.
-2. Chain-agnostic action envelope for evm and svm.
-3. Idempotency and request-expiry metadata for mutating workflows.
+| Operation | HTTP endpoint |
+| --- | --- |
+| create-policy | POST /v1/policies |
+| create-rule | POST /v1/policies/{policyId}/rules |
+| create-condition-set | POST /v1/condition_sets |
+| create-key-quorum | POST /v1/key_quorums |
 
-## Endpoint Surface
+`create-rule` requires `policyId`. Supply `authorizationSignature` when required by resource ownership, together with the exact `expiresAt`, `idempotencyKey`, and payload used to construct the signature. Signature generation remains the caller's responsibility.
 
-1. policies/*
-2. policies/rules/*
-3. condition-sets/*
-4. key-quorums/*
+`list-policies` returns an explicit unsupported error without making a request: a current REST contract for that operation has not been verified. Unknown operation names also fail before any request.
 
-## Usage
+Provider errors return `success: false`. Mutations are not automatically retried.
 
-1. Install with `saiso add privy_policy_controls`.
-2. Invoke action `PRIVY_POLICY_CONTROLS` with an operation (`create-policy`, `list-policies`, `create-rule`, `create-condition-set`, or `create-key-quorum`) and policy context.
-3. Requires `PRIVY_APP_ID` and `PRIVY_APP_SECRET`.
-
-## Output Contract
-
-1. success
-2. operation
-3. chainFamily
-4. requestId
-5. data
-6. meta.idempotencyKey
-7. meta.expiresAt
+References: [Policies](https://docs.privy.io/api-reference/policies/create), [Rules](https://docs.privy.io/api-reference/policies/rules/create), [Condition sets](https://docs.privy.io/api-reference/condition-sets/create), [Key quorums](https://docs.privy.io/api-reference/key-quorums/create).

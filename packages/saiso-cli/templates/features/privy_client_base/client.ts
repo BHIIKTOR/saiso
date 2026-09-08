@@ -19,6 +19,12 @@ export function createPrivyClient(config: PrivyClientConfig) {
   const timeoutMs = config.timeoutMs ?? 30000;
   const retryMaxAttempts = config.retryMaxAttempts ?? 3;
   const retryBaseDelayMs = config.retryBaseDelayMs ?? 200;
+  if (!config.appId || !config.appSecret) throw new Error('Privy app ID and secret are required');
+  if (!Number.isFinite(timeoutMs) || timeoutMs <= 0
+    || !Number.isSafeInteger(retryMaxAttempts) || retryMaxAttempts <= 0
+    || !Number.isFinite(retryBaseDelayMs) || retryBaseDelayMs < 0) {
+    throw new Error('Invalid Privy timeout or retry configuration');
+  }
 
   return {
     async request<TResponse = unknown>(path: string, options: PrivyRequestOptions = {}): Promise<TResponse> {
@@ -30,16 +36,22 @@ export function createPrivyClient(config: PrivyClientConfig) {
 
       const authHeader = createPrivyAuthHeader(config.appId, config.appSecret);
       headers.authorization = authHeader;
+      headers['privy-app-id'] = config.appId;
 
       if (options.idempotencyKey) {
-        headers['x-idempotency-key'] = options.idempotencyKey;
+        headers['privy-idempotency-key'] = options.idempotencyKey;
       }
 
       if (options.expiresAt) {
-        headers['x-request-expiry'] = options.expiresAt;
+        const expiryMs = Date.parse(options.expiresAt);
+        if (!Number.isFinite(expiryMs)) throw new Error('expiresAt must be a valid ISO timestamp');
+        headers['privy-request-expiry'] = String(expiryMs);
       }
 
       const execute = async () => {
+        if (options.expiresAt && Date.parse(options.expiresAt) <= Date.now()) {
+          throw new PrivyClientError('Privy request has expired', 0);
+        }
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), timeoutMs);
         try {
@@ -52,7 +64,7 @@ export function createPrivyClient(config: PrivyClientConfig) {
 
           if (!response.ok) {
             throw new PrivyClientError(
-              'Privy request failed',
+              `Privy ${method} ${path} failed with HTTP ${response.status}`,
               response.status,
               {
                 path,
@@ -64,7 +76,11 @@ export function createPrivyClient(config: PrivyClientConfig) {
           }
 
           const text = await response.text();
-          return (text ? JSON.parse(text) : {}) as TResponse;
+          try {
+            return (text ? JSON.parse(text) : {}) as TResponse;
+          } catch {
+            throw new PrivyClientError('Privy returned invalid JSON', response.status, { path, method });
+          }
         } catch (error) {
           if (error instanceof PrivyClientError) {
             throw error;
@@ -85,7 +101,8 @@ export function createPrivyClient(config: PrivyClientConfig) {
       };
 
       return retryWithBackoff(execute, {
-        maxAttempts: retryMaxAttempts,
+        // Write endpoints differ in idempotency support; a lost response must not replay a mutation.
+        maxAttempts: method === 'GET' ? retryMaxAttempts : 1,
         baseDelayMs: retryBaseDelayMs,
       });
     },

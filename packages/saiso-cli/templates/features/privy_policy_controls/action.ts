@@ -1,4 +1,5 @@
 import { Action, IAgentRuntime, Memory, State, HandlerCallback, ActionExample } from '@elizaos/core';
+import { randomUUID } from 'node:crypto';
 import { createPrivyClient } from '../privy_client_base/client';
 
 interface PrivyPolicyControlsContent {
@@ -9,6 +10,7 @@ interface PrivyPolicyControlsContent {
   requestId?: string;
   idempotencyKey?: string;
   expiresAt?: string;
+  authorizationSignature?: string;
 }
 
 function readSetting(runtime: IAgentRuntime, key: string, fallback = ''): string {
@@ -52,33 +54,34 @@ export const privyPolicyControlsAction: Action = {
     const startedAt = Date.now();
     const chainFamily = content.chainFamily || 'evm';
     const requestId = content.requestId || 'saiso-privy-policy-' + startedAt.toString(36);
-    const idempotencyKey = content.idempotencyKey || 'idem-policy-' + startedAt.toString(36);
-    const expiresAt = content.expiresAt || new Date(startedAt + Number(readSetting(runtime, 'PRIVY_REQUEST_EXPIRY_MS', '120000'))).toISOString();
+    const idempotencyKey = content.idempotencyKey || randomUUID();
+    let expiresAt = content.expiresAt;
     const operation = content.operation || 'create-policy';
 
     try {
+      expiresAt ??= new Date(startedAt + Number(readSetting(runtime, 'PRIVY_REQUEST_EXPIRY_MS', '120000'))).toISOString();
       const client = createClient(runtime);
       let path = '/policies';
       let method: 'GET' | 'POST' = 'POST';
       let body: unknown = { ...content.payload };
+      if (!['create-policy', 'list-policies', 'create-rule', 'create-condition-set', 'create-key-quorum'].includes(operation)) throw new Error('Unsupported policy operation');
 
       if (operation === 'list-policies') {
-        path = '/policies';
-        method = 'GET';
-        body = undefined;
+        throw new Error('list-policies is unsupported: no verified Privy REST contract is available');
       } else if (operation === 'create-rule') {
         if (!content.policyId) throw new Error('policyId is required for create-rule');
         path = `/policies/${encodeURIComponent(content.policyId)}/rules`;
         method = 'POST';
       } else if (operation === 'create-condition-set') {
-        path = '/condition-sets';
+        path = '/condition_sets';
         method = 'POST';
       } else if (operation === 'create-key-quorum') {
-        path = '/key-quorums';
+        path = '/key_quorums';
         method = 'POST';
       }
 
-      const result = await client.request(path, { method, body, idempotencyKey, expiresAt });
+      const headers = content.authorizationSignature ? { 'privy-authorization-signature': content.authorizationSignature } : undefined;
+      const result = await client.request(path, { method, body, idempotencyKey, expiresAt, headers });
       const response = {
         success: true,
         operation: 'privy_policy_controls',

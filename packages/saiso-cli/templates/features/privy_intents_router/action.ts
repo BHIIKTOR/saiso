@@ -1,10 +1,13 @@
 import { Action, IAgentRuntime, Memory, State, HandlerCallback, ActionExample } from '@elizaos/core';
+import { randomUUID } from 'node:crypto';
 import { createPrivyClient } from '../privy_client_base/client';
 
 interface PrivyIntentsRouterContent {
   chainFamily?: 'evm' | 'svm';
   operation?: 'transfer' | 'rpc' | 'get' | 'list' | 'update-policy' | 'update-key-quorum';
   intentId?: string;
+  policyId?: string;
+  keyQuorumId?: string;
   walletId?: string;
   network?: string;
   to?: string;
@@ -57,31 +60,29 @@ export const privyIntentsRouterAction: Action = {
     const startedAt = Date.now();
     const chainFamily = content.chainFamily || 'evm';
     const requestId = content.requestId || 'saiso-privy-intent-' + startedAt.toString(36);
-    const idempotencyKey = content.idempotencyKey || 'idem-intent-' + startedAt.toString(36);
-    const expiresAt = content.expiresAt || new Date(startedAt + Number(readSetting(runtime, 'PRIVY_REQUEST_EXPIRY_MS', '120000'))).toISOString();
+    const idempotencyKey = content.idempotencyKey || randomUUID();
+    let expiresAt = content.expiresAt;
     const operation = content.operation || (content.intentId ? 'get' : 'transfer');
 
     try {
+      expiresAt ??= new Date(startedAt + Number(readSetting(runtime, 'PRIVY_REQUEST_EXPIRY_MS', '120000'))).toISOString();
       const client = createClient(runtime);
-      let path = '/intents/transfer';
+      if (!['transfer', 'rpc', 'get', 'list', 'update-policy', 'update-key-quorum'].includes(operation)) throw new Error('Unsupported intent operation');
+      let path = '/intents';
       let method: 'GET' | 'POST' | 'PATCH' = 'POST';
       let body: unknown = {
-        chain_type: chainFamily === 'svm' ? 'solana' : 'ethereum',
-        network: content.network,
-        wallet_id: content.walletId,
-        to: content.to,
-        amount: content.amount,
         ...(content.payload as Record<string, unknown> | undefined),
       };
 
-      if (operation === 'rpc') {
-        path = '/intents/rpc';
+      if (operation === 'transfer') {
+        if (!content.walletId) throw new Error('walletId is required for transfer intents');
+        path = `/intents/wallets/${encodeURIComponent(content.walletId)}/transfer`;
+      } else if (operation === 'rpc') {
+        if (!content.walletId) throw new Error('walletId is required for RPC intents');
+        path = `/intents/wallets/${encodeURIComponent(content.walletId)}/rpc`;
         method = 'POST';
         body = {
-          chain_type: chainFamily === 'svm' ? 'solana' : 'ethereum',
-          network: content.network,
-          wallet_id: content.walletId,
-          rpc_request: content.rpcRequest,
+          ...content.rpcRequest,
           ...(content.payload as Record<string, unknown> | undefined),
         };
       } else if (operation === 'get') {
@@ -94,15 +95,18 @@ export const privyIntentsRouterAction: Action = {
         method = 'GET';
         body = undefined;
       } else if (operation === 'update-policy') {
-        if (!content.intentId) throw new Error('intentId is required for update-policy');
-        path = `/intents/${encodeURIComponent(content.intentId)}/policy`;
+        if (!content.policyId) throw new Error('policyId is required for update-policy');
+        path = `/intents/policies/${encodeURIComponent(content.policyId)}`;
         method = 'PATCH';
       } else if (operation === 'update-key-quorum') {
-        if (!content.intentId) throw new Error('intentId is required for update-key-quorum');
-        path = `/intents/${encodeURIComponent(content.intentId)}/key-quorum`;
+        if (!content.keyQuorumId) throw new Error('keyQuorumId is required for update-key-quorum');
+        path = `/intents/key_quorums/${encodeURIComponent(content.keyQuorumId)}`;
         method = 'PATCH';
       }
 
+      if (operation === 'transfer' && (!content.payload?.source || !content.payload?.destination)) {
+        throw new Error('Transfer intents require payload.source and payload.destination in Privy transfer format');
+      }
       const result = await client.request(path, { method, body, idempotencyKey, expiresAt });
       const response = {
         success: true,

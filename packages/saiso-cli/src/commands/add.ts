@@ -814,7 +814,7 @@ async function listAvailableFeatures(): Promise<void> {
     'privy_webhook_ingest': 'Verify and process Privy webhook events deterministically',
     'query_balance': 'Query wallet and token balances',
     'quote_and_swap': 'Quote and execute swaps with workflow parity across chains',
-    'scheduler_and_workflow_runner': 'Run scheduled and checkpointed multi-step workflows',
+    'scheduler_and_workflow_runner': 'Plan multi-step workflows and validate schedules without execution',
     'send_tokens': 'Send tokens to other addresses',
     'tx_lifecycle_manager': 'Track pending, replacement, and finality transaction lifecycle states',
   };

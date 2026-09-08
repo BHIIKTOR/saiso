@@ -83,7 +83,7 @@ PRIVY_INTENT_POLL_TIMEOUT_MS=120000
 
 ## Shared Action Contract
 
-Generic Privy features follow this shape to preserve EVM/SVM parity:
+HTTP-backed Privy features use the envelope below, with operation-specific identifiers and provider request bodies described in each feature's README. Webhook verification instead takes raw bytes and Svix headers and returns `data.verified` plus the authenticated event; it has no idempotency/expiry request metadata.
 
 ### Input
 
@@ -165,13 +165,13 @@ Endpoint mapping:
 
 Purpose:
 
-1. Token discovery, quote, execute, and action status polling flows.
+1. Quote, execute, and action status retrieval flows; walletId is required for each.
 
 Endpoint mapping:
 
-1. `wallets/swap/tokens`
-2. `wallets/swap/quote`
-3. `wallets/actions/get`
+1. `POST /v1/wallets/{walletId}/swap/quote`
+2. `POST /v1/wallets/{walletId}/swap`
+3. `GET /v1/wallets/{walletId}/actions/{actionId}`
 
 ### `privy_policy_controls`
 
@@ -181,10 +181,12 @@ Purpose:
 
 Endpoint mapping:
 
-1. `policies/*`
-2. `policies/rules/*`
-3. `condition-sets/*`
-4. `key-quorums/*`
+1. `POST /v1/policies`
+2. `POST /v1/policies/{policyId}/rules`
+3. `POST /v1/condition_sets`
+4. `POST /v1/key_quorums`
+
+`list-policies` is explicitly unsupported until a REST contract is verified.
 
 ### `privy_intents_router`
 
@@ -194,18 +196,18 @@ Purpose:
 
 Endpoint mapping:
 
-1. `intents/transfer`
-2. `intents/rpc`
-3. `intents/get`
-4. `intents/list`
-5. `intents/update-policy`
-6. `intents/update-key-quorum`
+1. `POST /v1/intents/wallets/{walletId}/transfer`
+2. `POST /v1/intents/wallets/{walletId}/rpc`
+3. `GET /v1/intents/{intentId}`
+4. `GET /v1/intents`
+5. `PATCH /v1/intents/policies/{policyId}`
+6. `PATCH /v1/intents/key_quorums/{keyQuorumId}`
 
 ### `privy_webhook_ingest`
 
 Purpose:
 
-1. Signature-aware webhook intake and deterministic dispatching.
+1. Svix signature verification over raw request bytes and return of the authenticated event. The receiver owns downstream dispatch and delivery deduplication.
 
 Event families:
 
@@ -223,11 +225,11 @@ Purpose:
 
 Endpoint mapping:
 
-1. `accounts/create`
-2. `accounts/get`
-3. `accounts/list`
-4. `accounts/update`
-5. `accounts/balance`
+1. `POST /v1/accounts`
+2. `GET /v1/accounts/{accountId}`
+3. `GET /v1/accounts`
+4. `PATCH /v1/accounts/{accountId}`
+5. `GET /v1/accounts/{accountId}/balance`
 
 ### `privy_signing_evm` (EVM adapter)
 
@@ -251,9 +253,11 @@ Purpose:
 
 Endpoint mapping:
 
-1. `wallets/ethereum/eth-sign-7702-authorization`
-2. `wallets/ethereum/eth-sign-user-operation`
-3. `wallets/ethereum/wallet-send-calls`
+All three use `POST /v1/wallets/{walletId}/rpc` with methods:
+
+1. `eth_sign7702Authorization`
+2. `eth_signUserOperation`
+3. `wallet_sendCalls`
 
 ### `privy_signing_svm` (SVM adapter)
 
@@ -329,3 +333,29 @@ PATH=/home/bhiktor/.bun/bin:$PATH bun test packages/saiso-cli/src
 - Confirm `PRIVY_APP_ID` and `PRIVY_APP_SECRET` are set.
 - Validate base URL and timeout settings.
 - Inspect retryable error classification in `PrivyClientError`.
+
+## Corrective contract audit (2026-09-07)
+
+The accounts, swap, intents, policy controls, and advanced EVM templates now have local HTTP contract tests against the documented paths and request formats. The shared client sends Basic authentication plus `privy-app-id`, `privy-idempotency-key`, and `privy-request-expiry` (Unix milliseconds). Retryable GET failures are retried within the configured attempt limit. Writes are sent once because idempotency support differs across endpoints; an ambiguous response must be reconciled with the provider before a caller retries.
+
+This is documentation-based verification and local mocked transport coverage, not evidence of live account eligibility, wallet ownership authorization, or settlement. Other legacy Privy signing/transfer templates were not included in this endpoint audit.
+
+### Input migration
+
+- Webhooks require `rawBody`, lowercase Svix headers, and `PRIVY_WEBHOOK_SECRET`. The prior parsed `payload` / separate `event` / hex `signature` interface is rejected. Deliveries outside a five-minute timestamp window are rejected; deduplicate `svix-id` in the receiver.
+- Account creation requires `payload.wallet_ids` or `payload.wallets_configuration`; a flat chain/network field is not an account creation body.
+- Swap quote/execute use source/destination asset objects and base-unit amounts. Status requires both wallet and action IDs.
+- Transfer intents require provider-shaped `payload.source` and `payload.destination`. RPC intents use `rpcRequest`. Policy and quorum intents require `policyId` and `keyQuorumId`, not an existing intent ID.
+- Advanced EVM requests require `walletId` and `payload.params`. `send-call` also needs CAIP-2 chain context.
+- For operations requiring owner authorization, callers supply `authorizationSignature` matching the exact body, URL, and headers, including explicit `expiresAt` and `idempotencyKey`. These templates do not create owner signatures.
+- `list-policies` is rejected before HTTP because its REST contract has not been verified.
+
+### Sources
+
+- [REST authentication](https://docs.privy.io/basics/rest-api/setup)
+- [Accounts](https://docs.privy.io/wallets/accounts/create)
+- [Swap quotes](https://docs.privy.io/wallets/actions/swap/get-quote), [execution](https://docs.privy.io/wallets/actions/swap/execute), [status](https://docs.privy.io/wallets/actions/status)
+- [Transfer intents](https://docs.privy.io/transaction-management/intents/create/execute-transfer), [RPC intents](https://docs.privy.io/transaction-management/intents/create/execute-rpc), [policy intents](https://docs.privy.io/transaction-management/intents/create/update-policy), [quorum intents](https://docs.privy.io/transaction-management/intents/create/update-key-quorum)
+- [Policies and idempotency](https://docs.privy.io/api-reference/policies/create), [rule authorization and expiry](https://docs.privy.io/api-reference/policies/rules/create), [condition sets](https://docs.privy.io/api-reference/condition-sets/create), [key quorums](https://docs.privy.io/api-reference/key-quorums/create)
+- [EIP-7702 signing](https://docs.privy.io/wallets/using-wallets/ethereum/sign-7702-authorization), [RPC request schemas](https://docs.privy.io/api-reference/intents/list)
+- [Privy webhook verification](https://docs.privy.io/api-reference/webhooks/overview), [Svix manual signature verification](https://docs.svix.com/receiving/verifying-payloads/how-manual)

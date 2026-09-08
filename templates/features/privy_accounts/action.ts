@@ -1,4 +1,5 @@
 import { Action, IAgentRuntime, Memory, State, HandlerCallback, ActionExample } from '@elizaos/core';
+import { randomUUID } from 'node:crypto';
 import { createPrivyClient } from '../privy_client_base/client';
 
 interface PrivyAccountsContent {
@@ -53,19 +54,28 @@ export const privyAccountsAction: Action = {
     const startedAt = Date.now();
     const chainFamily = content.chainFamily || 'evm';
     const requestId = content.requestId || 'saiso-privy-accounts-' + startedAt.toString(36);
-    const idempotencyKey = content.idempotencyKey || 'idem-accounts-' + startedAt.toString(36);
-    const expiresAt = content.expiresAt || new Date(startedAt + Number(readSetting(runtime, 'PRIVY_REQUEST_EXPIRY_MS', '120000'))).toISOString();
+    const idempotencyKey = content.idempotencyKey || randomUUID();
+    let expiresAt = content.expiresAt;
     const operation = content.operation || (content.accountId ? 'get' : 'create');
 
     try {
+      expiresAt ??= new Date(startedAt + Number(readSetting(runtime, 'PRIVY_REQUEST_EXPIRY_MS', '120000'))).toISOString();
       const client = createClient(runtime);
       let path = '/accounts';
       let method: 'GET' | 'POST' | 'PATCH' = 'POST';
       let body: unknown = {
-        chain_type: chainFamily === 'svm' ? 'solana' : 'ethereum',
-        network: content.network,
         ...content.payload,
       };
+      if (!['create', 'get', 'list', 'update', 'balance'].includes(operation)) throw new Error('Unsupported account operation');
+      if (operation === 'create') {
+        const walletIds = content.payload?.wallet_ids;
+        const walletsConfiguration = content.payload?.wallets_configuration;
+        const wallets = walletIds ?? walletsConfiguration;
+        if ((walletIds !== undefined) === (walletsConfiguration !== undefined)
+          || !Array.isArray(wallets) || wallets.length < 1 || wallets.length > 5) {
+          throw new Error('Account creation requires exactly one of payload.wallet_ids or payload.wallets_configuration with 1-5 wallets');
+        }
+      }
 
       if (operation === 'get') {
         if (!content.accountId) throw new Error('accountId is required for get');

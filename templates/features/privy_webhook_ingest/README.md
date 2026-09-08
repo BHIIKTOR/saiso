@@ -1,31 +1,23 @@
 # Privy Webhook Ingest
 
-## What It Adds
+Verify Privy's Svix webhook signature and return the authenticated event. This action does not dispatch downstream actions.
 
-1. Verify webhook signatures using HMAC-SHA256 with timing-safe comparison.
-2. Dispatch typed wallet, transaction, action, user, and intents events.
-3. Chain-agnostic action envelope for evm and svm.
+## Inputs
 
-## Endpoint Surface
+- `rawBody`: exact UTF-8 HTTP request body, captured before JSON parsing.
+- `headers`: object with lowercase `svix-id`, `svix-timestamp`, and `svix-signature` keys.
+- `PRIVY_WEBHOOK_SECRET`: the endpoint signing secret from Privy, including its `whsec_` prefix.
 
-1. transaction events
-2. wallet events
-3. wallet action events
-4. user events
-5. intents events
+Pass the body unchanged. The verifier authenticates the delivery ID, timestamp, and raw body using HMAC-SHA256 and timing-safe comparison. Deliveries more than five minutes in the past or future are rejected. Multiple version-1 signatures are supported for key rotation.
 
-## Usage
+## Output
 
-1. Install with `saiso add privy_webhook_ingest`.
-2. Invoke action `PRIVY_WEBHOOK_INGEST` with a signature and event payload.
-3. Requires `PRIVY_WEBHOOK_SECRET` to verify signatures.
+Valid signatures and JSON bodies with a string `type` return `success: true`, `data.verified: true`, and `data.event` parsed exclusively from the authenticated body. Failed verification or invalid JSON returns `success: false` with no event.
 
-## Output Contract
+Timestamp validation limits replay age but does not deduplicate deliveries. The HTTP receiver must persist/deduplicate `svix-id` before performing downstream effects; Privy may redeliver the same message.
 
-1. success
-2. operation
-3. chainFamily
-4. requestId
-5. data.verified
-6. data.event
-7. meta
+## Migration
+
+The previous `signature`/parsed `payload`/separate `event` interface is rejected. It did not implement Privy's signing format and allowed event substitution. Forward `rawBody` and the three Svix headers instead. App ID and app secret are not required for this local verification feature.
+
+References: [Privy webhook verification](https://docs.privy.io/api-reference/webhooks/overview), [Svix manual verification](https://docs.svix.com/receiving/verifying-payloads/how-manual).

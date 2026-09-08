@@ -1,29 +1,19 @@
-# Privy Advanced Execution (EVM Adapter)
+# Privy Advanced EVM Execution
 
-## What It Adds
+Invoke `PRIVY_ADVANCED_EXECUTION_EVM` with `walletId`, an operation, and `payload.params` in Privy RPC format.
 
-1. Scaffold 7702 auth signatures, user operations, and wallet send-calls.
-2. EVM-specific execution path while preserving SAISO action parity.
-3. Idempotency and request-expiry metadata for reliable retries.
+All operations use `POST /v1/wallets/{walletId}/rpc`:
 
-## Endpoint Surface
+| Operation | RPC method |
+| --- | --- |
+| auth-signature | eth_sign7702Authorization |
+| user-operation | eth_signUserOperation |
+| send-call | wallet_sendCalls |
 
-1. wallets/advanced/evm/auth-signature
-2. wallets/advanced/evm/user-operation
-3. wallets/advanced/evm/send-call
+`send-call` also requires CAIP-2 chain context through `network` or `payload.caip2`. `payload` supplies the RPC fields; the selected operation determines the method and cannot be overridden through the payload.
 
-## Usage
+`auth-signature` signs an EIP-7702 authorization; it does not create an HTTP request authorization signature. Supply `authorizationSignature` when wallet ownership requires one, along with matching `expiresAt` and `idempotencyKey`. Owner-signature construction remains the caller's responsibility.
 
-1. Install with `saiso add privy_advanced_execution_evm` in EVM projects.
-2. Invoke action `PRIVY_ADVANCED_EXECUTION_EVM` with an operation (`auth-signature`, `user-operation`, or `send-call`) and wallet context.
-3. Requires `PRIVY_APP_ID` and `PRIVY_APP_SECRET`; user operations and send-calls can move real assets when configured with live credentials.
+Signing results and asynchronous submissions are returned in `data.result`. A successful HTTP response does not imply settlement. Mutations are not automatically retried.
 
-## Output Contract
-
-1. success
-2. operation
-3. chainFamily
-4. requestId
-5. data
-6. meta.idempotencyKey
-7. meta.expiresAt
+References: [EIP-7702](https://docs.privy.io/wallets/using-wallets/ethereum/sign-7702-authorization), [RPC schemas](https://docs.privy.io/api-reference/intents/list).

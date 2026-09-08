@@ -18,35 +18,33 @@ interface SchedulerWorkflowRunnerContent {
   payload?: Record<string, unknown>;
 }
 
-function readSetting(runtime: IAgentRuntime, key: string, fallback = ''): string {
-  const value = runtime.getSetting(key);
-  return typeof value === 'string' && value.trim() ? value.trim() : fallback;
-}
-
 function readNumber(runtime: IAgentRuntime, key: string, fallback: number): number {
-  const value = Number(readSetting(runtime, key));
-  return Number.isFinite(value) ? value : fallback;
+  const value = runtime.getSetting(key);
+  if (value === undefined || value === null || (typeof value === 'string' && !value.trim())) {
+    return fallback;
+  }
+  return typeof value === 'string' || typeof value === 'number' ? Number(value) : NaN;
 }
 
-function runWorkflow(workflow: { id?: string; steps?: Array<{ name?: string; action?: string }> }) {
+function planWorkflow(workflow: { id?: string; steps?: Array<{ name?: string; action?: string }> }) {
   const steps = (workflow.steps || []).map((step, index) => ({
     step: index + 1,
     name: step.name || `step-${index + 1}`,
     action: step.action || 'noop',
-    status: 'completed' as const,
+    status: 'planned' as const,
   }));
   return {
     workflowId: workflow.id || 'workflow-default',
     stepCount: steps.length,
     steps,
-    status: steps.length > 0 ? 'completed' : 'empty',
+    status: steps.length > 0 ? 'planned' : 'empty',
   };
 }
 
 export const schedulerWorkflowRunnerAction: Action = {
   name: 'SCHEDULER_AND_WORKFLOW_RUNNER',
   similes: ['SCHEDULER_AND_WORKFLOW_RUNNER', 'SCHEDULER', 'WORKFLOW_RUNNER', 'CRON_RUNNER'],
-  description: 'Run interval and checkpointed multi-step workflows',
+  description: 'Plan multi-step workflows and validate schedules without executing actions',
   validate: async (_runtime: IAgentRuntime, message: Memory) => {
     const content = (message.content || {}) as SchedulerWorkflowRunnerContent;
     return typeof content === 'object' && content !== null;
@@ -65,14 +63,26 @@ export const schedulerWorkflowRunnerAction: Action = {
     const intervalMs = content.schedule?.intervalMs ?? readNumber(runtime, 'SCHEDULER_INTERVAL_MS', 60000);
     const maxRuns = content.schedule?.maxRuns ?? readNumber(runtime, 'SCHEDULER_MAX_RUNS', 1);
     const workflow = content.workflow || content.payload?.workflow || {};
-    const result = runWorkflow(workflow);
+    const result = planWorkflow(workflow);
+    const violations: string[] = [];
+    if (!Number.isSafeInteger(intervalMs) || intervalMs <= 0) {
+      violations.push('intervalMs must be a positive safe integer');
+    }
+    if (!Number.isSafeInteger(maxRuns) || maxRuns <= 0) {
+      violations.push('maxRuns must be a positive safe integer');
+    }
+    if (content.dryRun === false) {
+      violations.push('Workflow execution is not supported; use dryRun: true to request a plan');
+    }
 
     const response = {
-      success: true,
+      success: violations.length === 0,
+      ...(violations.length > 0 ? { error: { code: 'workflow_plan_rejected', message: violations.join('; ') } } : {}),
       operation: 'scheduler_and_workflow_runner',
       chainFamily,
       data: {
-        dryRun: content.dryRun !== false,
+        dryRun: true,
+        violations,
         schedule: { intervalMs, maxRuns },
         workflow: result,
         payload: content.payload || {},
@@ -86,7 +96,9 @@ export const schedulerWorkflowRunnerAction: Action = {
 
     if (callback) {
       callback({
-        text: `[scheduler_and_workflow_runner] workflow '${result.workflowId}' ${result.status} (${result.stepCount} steps)`,
+        text: violations.length > 0
+          ? `[scheduler_and_workflow_runner] rejected: ${violations.join('; ')}`
+          : `[scheduler_and_workflow_runner] workflow '${result.workflowId}' ${result.status} (${result.stepCount} steps)`,
         content: response as any,
       });
     }

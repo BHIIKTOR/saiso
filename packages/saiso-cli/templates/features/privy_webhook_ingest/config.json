@@ -29,17 +29,9 @@
   },
   "environment": {
     "required": [
-      "PRIVY_APP_ID",
-      "PRIVY_APP_SECRET"
+      "PRIVY_WEBHOOK_SECRET"
     ],
-    "optional": [
-      "PRIVY_BASE_URL",
-      "PRIVY_REQUEST_TIMEOUT_MS",
-      "PRIVY_REQUEST_EXPIRY_MS",
-      "PRIVY_RETRY_MAX_ATTEMPTS",
-      "PRIVY_RETRY_BASE_DELAY_MS",
-      "PRIVY_DEFAULT_WALLET_ID"
-    ]
+    "optional": []
   },
   "features": {
     "workflowParity": true,
@@ -49,8 +41,5 @@
   "examples": [
     "Run privy_webhook_ingest for an EVM wallet",
     "Run privy_webhook_ingest for an SVM wallet"
-  ],
-  "featureDependencies": [
-    "privy_client_base"
   ]
 }

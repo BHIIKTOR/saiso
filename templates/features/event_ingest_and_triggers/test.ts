@@ -22,3 +22,13 @@ describe('event_ingest_and_triggers action scaffold', () => {
     expect(result.meta.requestId).toBeDefined();
   });
 });
+
+describe('event_ingest_and_triggers behavior', () => {
+
+  it('normalizes event types and matches only relevant or wildcard triggers', async () => {
+    const result = await eventIngestTriggersAction.handler({ getSetting: () => undefined } as any, { content: { event: { type: 'Wallet Created', source: 'local', payload: { id: 'wallet_1' } }, triggers: [{ id: 'match', eventType: 'wallet_created', action: 'notify' }, { id: 'other', eventType: 'transaction.failed' }, { id: 'wildcard', eventType: '*', action: 'audit' }] } } as any, undefined, {});
+    expect(result.data.event.type).toBe('wallet_created');
+    expect(result.data.event.payload).toEqual({ id: 'wallet_1' });
+    expect(result.data.matchedTriggers.map((trigger: { id: string }) => trigger.id)).toEqual(['match', 'wildcard']);
+  });
+});

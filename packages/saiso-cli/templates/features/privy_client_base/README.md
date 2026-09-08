@@ -30,3 +30,13 @@
 5. `data`
 6. `meta.idempotencyKey`
 7. `meta.expiresAt`
+
+## Transport behavior
+
+Requests include Basic authentication and `privy-app-id`. `idempotencyKey` is sent as `privy-idempotency-key`; ISO `expiresAt` is converted to Unix milliseconds in `privy-request-expiry`. Invalid or expired requests fail before HTTP.
+
+Only GET requests retry transient transport errors, HTTP 429, or HTTP 5xx, within `PRIVY_RETRY_MAX_ATTEMPTS`. Permanent HTTP errors and invalid JSON are not retried. POST/PATCH/PUT/DELETE requests are sent once, including after a lost response; reconcile uncertain writes with provider state before deciding to retry. Supplying an idempotency key does not establish that every endpoint supports replay protection.
+
+New accounts/swap/intents/policy/advanced templates generate UUID idempotency keys when omitted. Callers who need to identify the same logical request across invocations must supply their own stable key. For owner-authorized requests, the signature and explicit expiry/key must match the exact provider request.
+
+Reference: [Privy REST authentication](https://docs.privy.io/basics/rest-api/setup), [policy idempotency](https://docs.privy.io/api-reference/policies/create), [request expiry](https://docs.privy.io/api-reference/policies/rules/create).

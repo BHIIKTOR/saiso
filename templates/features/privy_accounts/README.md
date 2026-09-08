@@ -1,31 +1,19 @@
 # Privy Accounts
 
-## What It Adds
+Install with `saiso add privy_accounts`. Invoke `PRIVY_ACCOUNTS` using app credentials from `privy_client_base`.
 
-1. Create, get, list, update, and query balances for Privy accounts.
-2. Chain-agnostic action envelope for evm and svm.
-3. Idempotency and request-expiry metadata for mutating workflows.
+| Operation | HTTP endpoint |
+| --- | --- |
+| create | POST /v1/accounts |
+| get | GET /v1/accounts/{accountId} |
+| list | GET /v1/accounts |
+| update | PATCH /v1/accounts/{accountId} |
+| balance | GET /v1/accounts/{accountId}/balance |
 
-## Endpoint Surface
+Create/update use `payload` as the provider request body. Creation requires exactly one of `payload.wallet_ids` or `payload.wallets_configuration`, containing 1–5 wallets. For example: `{ operation: 'create', payload: { display_name: 'Agent', wallet_ids: ['wallet_id'] } }`.
 
-1. accounts/create
-2. accounts/get
-3. accounts/list
-4. accounts/update
-5. accounts/balance
+Account chain configuration belongs inside `wallets_configuration`; the old top-level `network` and `chainFamily` are response context, not account API fields.
 
-## Usage
+Results use `success`, `data.result`, and request metadata. Provider errors return `success: false`. Mutations are sent once; they are not automatically retried.
 
-1. Install with `saiso add privy_accounts`.
-2. Invoke action `PRIVY_ACCOUNTS` with an operation and account context.
-3. Requires `PRIVY_APP_ID` and `PRIVY_APP_SECRET`; can move real assets when configured with live credentials.
-
-## Output Contract
-
-1. success
-2. operation
-3. chainFamily
-4. requestId
-5. data
-6. meta.idempotencyKey
-7. meta.expiresAt
+Reference: [Privy account creation](https://docs.privy.io/wallets/accounts/create).

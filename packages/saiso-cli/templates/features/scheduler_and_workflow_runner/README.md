@@ -1,29 +1,21 @@
-# Scheduler and Workflow Runner
+# Scheduler and Workflow Planner
 
-## What It Adds
-
-1. Execute checkpointed multi-step workflows and report step status.
-2. Validate schedule configuration (interval and max runs).
-3. Return a workflow run summary with a normalized SAISO envelope.
+The `SCHEDULER_AND_WORKFLOW_RUNNER` action name is retained for compatibility. It plans workflows and validates schedule values; it does not execute actions, create checkpoints, or schedule background work.
 
 ## Inputs
 
-- `schedule.intervalMs`: interval between runs (defaults to `SCHEDULER_INTERVAL_MS`)
-- `schedule.maxRuns`: maximum runs (defaults to `SCHEDULER_MAX_RUNS`)
-- `workflow.id`: workflow identifier
-- `workflow.steps`: array of `{ name, action }` steps
+- `dryRun`: omit or set to `true`. `false` is rejected.
+- `schedule.intervalMs`: positive safe integer; defaults to `SCHEDULER_INTERVAL_MS`, or 60000 when unset/blank.
+- `schedule.maxRuns`: positive safe integer; defaults to `SCHEDULER_MAX_RUNS`, or 1 when unset/blank.
+- `workflow.id`: optional identifier.
+- `workflow.steps`: array of `{ name, action }` descriptions.
 
-## Usage
+## Output
 
-1. Install with `saiso add scheduler_and_workflow_runner`.
-2. Invoke action `SCHEDULER_AND_WORKFLOW_RUNNER` with a workflow and optional schedule.
-3. The action returns the run summary; it does not schedule background execution.
+A valid plan returns `success: true`, `data.schedule`, and `data.workflow`. Steps have status `planned`; workflow status is `planned` or `empty`. No action availability or execution success is implied.
 
-## Output Contract
+An execution request or invalid schedule returns `success: false`, `error.code: workflow_plan_rejected`, and `data.violations`. Nothing is executed.
 
-1. success
-2. operation
-3. chainFamily
-4. data.schedule
-5. data.workflow (workflowId, stepCount, steps, status)
-6. meta
+## Migration
+
+Consumers that previously interpreted `completed` as evidence of execution must use this result only as a plan. Actual execution and checkpoint recovery are outside this feature's current scope.

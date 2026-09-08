@@ -22,3 +22,18 @@ describe('local_strategy_test_harness action scaffold', () => {
     expect(result.meta.requestId).toBeDefined();
   });
 });
+
+describe('local_strategy_test_harness behavior', () => {
+
+  it('runs a buy/sell scenario on either supported chain', async () => {
+    for (const chainFamily of ['evm', 'svm']) {
+      const result = await localStrategyTestHarnessAction.handler({ getSetting: () => undefined } as any, { content: { chainFamily, scenario: { steps: [{ action: 'buy', price: 10, amount: 2 }, { action: 'sell', price: 15, amount: 2 }] } } } as any, undefined, {});
+      expect(result.success).toBe(true);
+      expect(result.chainFamily).toBe(chainFamily);
+      expect(result.data.result.initialBalance).toBe(1000);
+      expect(result.data.result.finalBalance).toBe(1010);
+      expect(result.data.result.pnl).toBe(10);
+      expect(result.data.result.trades.map((trade: { balance: number }) => trade.balance)).toEqual([980, 1010]);
+    }
+  });
+});

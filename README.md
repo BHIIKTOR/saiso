@@ -291,9 +291,9 @@ Execution semantics:
 - `observability_and_incident_hooks` emits structured metric/trace/incident signals with severity classification.
 - `oracle_and_market_data_layer` normalizes price/liquidity feeds and flags stale data against a freshness threshold.
 - `portfolio_state_and_pnl` computes position values, PnL, and allocation drift from provided balances and prices.
-- `scheduler_and_workflow_runner` executes checkpointed multi-step workflows and reports step status.
+- `scheduler_and_workflow_runner` validates schedules and returns planned steps. It rejects `dryRun: false`; it does not execute actions or create checkpoints.
 - Privy signing, transfer, accounts, swap, intents, policy controls, and advanced EVM execution features call Privy APIs and can authorize or move real assets when configured with live credentials. Use sandbox credentials or quote/read-only flows for first validation.
-- `privy_webhook_ingest` verifies webhook signatures (HMAC-SHA256) and dispatches typed events.
+- `privy_webhook_ingest` verifies Privy's Svix signatures against the raw request body and returns only the authenticated event. The HTTP receiver owns deduplication and downstream dispatch.
 - `gas_estimation` reads RPC fee data and optional price APIs; it does not submit transactions.
 
 ---
@@ -486,7 +486,7 @@ saiso switch-env mainnet
 - [x] Complete testing framework (`saiso test` command)
 - [x] User agent testing suite with extensible test generation
 - [x] Unit test coverage for all packages
-- [x] Full feature template implementations (all 26 features with real logic)
+- [ ] Full execution coverage for all feature templates (scheduler planning is supported; execution and checkpoint recovery remain separate work)
 - [ ] Behavior testing framework (partial: `saiso test add` generates agent/MCP/actions templates)
 - [ ] Agent self-debugging capabilities
 - [ ] Auto-documentation generation

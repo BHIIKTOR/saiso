@@ -1,3 +1,5 @@
+import { PrivyClientError } from './errors';
+
 interface RetryOptions {
   maxAttempts: number;
   baseDelayMs: number;
@@ -14,6 +16,7 @@ export async function retryWithBackoff<T>(fn: () => Promise<T>, options: RetryOp
     try {
       return await fn();
     } catch (error) {
+      if (error instanceof PrivyClientError && !error.retryable) throw error;
       lastError = error;
       if (attempt >= options.maxAttempts) {
         break;

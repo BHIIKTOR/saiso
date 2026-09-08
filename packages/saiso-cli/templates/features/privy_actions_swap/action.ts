@@ -1,4 +1,5 @@
 import { Action, IAgentRuntime, Memory, State, HandlerCallback, ActionExample } from '@elizaos/core';
+import { randomUUID } from 'node:crypto';
 import { createPrivyClient } from '../privy_client_base/client';
 
 interface PrivyActionsSwapContent {
@@ -14,6 +15,7 @@ interface PrivyActionsSwapContent {
   requestId?: string;
   idempotencyKey?: string;
   expiresAt?: string;
+  authorizationSignature?: string;
 }
 
 function readSetting(runtime: IAgentRuntime, key: string, fallback = ''): string {
@@ -57,35 +59,38 @@ export const privyActionsSwapAction: Action = {
     const startedAt = Date.now();
     const chainFamily = content.chainFamily || 'evm';
     const requestId = content.requestId || 'saiso-privy-swap-' + startedAt.toString(36);
-    const idempotencyKey = content.idempotencyKey || 'idem-swap-' + startedAt.toString(36);
-    const expiresAt = content.expiresAt || new Date(startedAt + Number(readSetting(runtime, 'PRIVY_REQUEST_EXPIRY_MS', '120000'))).toISOString();
+    const idempotencyKey = content.idempotencyKey || randomUUID();
+    let expiresAt = content.expiresAt;
     const operation = content.operation || (content.actionId ? 'status' : 'quote');
 
     try {
+      expiresAt ??= new Date(startedAt + Number(readSetting(runtime, 'PRIVY_REQUEST_EXPIRY_MS', '120000'))).toISOString();
       const client = createClient(runtime);
-      let path = '/wallets/swap/quote';
+      if (!['quote', 'execute', 'status'].includes(operation)) throw new Error('Unsupported swap operation');
+      if (!content.walletId) throw new Error('walletId is required for swap operations');
+      let path = `/wallets/${encodeURIComponent(content.walletId)}/swap/quote`;
       let method: 'GET' | 'POST' = 'POST';
       let body: unknown = {
-        chain_type: chainFamily === 'svm' ? 'solana' : 'ethereum',
-        network: content.network,
-        from_token: content.fromToken,
-        to_token: content.toToken,
-        amount: content.amount,
+        source: { caip2: content.network, asset_address: content.fromToken },
+        destination: { asset_address: content.toToken },
+        base_amount: content.amount,
+        amount_type: 'exact_input',
         ...content.payload,
       };
 
       if (operation === 'execute') {
         if (!content.walletId) throw new Error('walletId is required for execute');
-        path = `/wallets/${encodeURIComponent(content.walletId)}/swap/tokens`;
+        path = `/wallets/${encodeURIComponent(content.walletId)}/swap`;
         method = 'POST';
       } else if (operation === 'status') {
         if (!content.actionId) throw new Error('actionId is required for status');
-        path = `/wallets/actions/${encodeURIComponent(content.actionId)}`;
+        path = `/wallets/${encodeURIComponent(content.walletId)}/actions/${encodeURIComponent(content.actionId)}`;
         method = 'GET';
         body = undefined;
       }
 
-      const result = await client.request(path, { method, body, idempotencyKey, expiresAt });
+      const headers = content.authorizationSignature ? { 'privy-authorization-signature': content.authorizationSignature } : undefined;
+      const result = await client.request(path, { method, body, idempotencyKey, expiresAt, headers });
       const response = {
         success: true,
         operation: 'privy_actions_swap',

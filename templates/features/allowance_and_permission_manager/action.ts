@@ -20,8 +20,11 @@ function readSetting(runtime: IAgentRuntime, key: string, fallback = ''): string
 }
 
 function readNumber(runtime: IAgentRuntime, key: string, fallback: number): number {
-  const value = Number(readSetting(runtime, key));
-  return Number.isFinite(value) ? value : fallback;
+  const value = runtime.getSetting(key);
+  if (value === undefined || value === null || (typeof value === 'string' && !value.trim())) {
+    return fallback;
+  }
+  return typeof value === 'string' || typeof value === 'number' ? Number(value) : NaN;
 }
 
 function normalizeList(values?: string[] | string): string[] {
@@ -37,8 +40,12 @@ function normalizeList(values?: string[] | string): string[] {
 function evaluateAllowance(runtime: IAgentRuntime, content: AllowancePermissionContent) {
   const token = String(content.token ?? content.payload?.token ?? '').toLowerCase();
   const spender = String(content.spender ?? content.payload?.spender ?? '').toLowerCase();
-  const amountUsd = Number(content.amount ?? content.payload?.amountUsd ?? 0);
-  const maxAllowanceUsd = content.maxAllowanceUsd ?? readNumber(runtime, 'ALLOWANCE_MAX_USD', 1000);
+  const rawAmount = content.amount !== undefined ? content.amount
+    : content.payload?.amountUsd !== undefined ? content.payload.amountUsd : 0;
+  const amountUsd = typeof rawAmount === 'number' || (typeof rawAmount === 'string' && rawAmount.trim())
+    ? Number(rawAmount)
+    : NaN;
+  const maxAllowanceUsd = content.maxAllowanceUsd !== undefined ? content.maxAllowanceUsd : readNumber(runtime, 'ALLOWANCE_MAX_USD', 1000);
   const allowedTokens = [
     ...normalizeList(readSetting(runtime, 'ALLOWANCE_ALLOWED_TOKENS')),
     ...normalizeList(content.allowedTokens),
@@ -49,6 +56,12 @@ function evaluateAllowance(runtime: IAgentRuntime, content: AllowancePermissionC
   ];
   const violations: Array<{ code: string; message: string; severity: 'error' | 'warning' }> = [];
 
+  if (!Number.isFinite(amountUsd) || amountUsd < 0) {
+    violations.push({ code: 'invalid_amount', message: 'amount must be a finite, nonnegative USD value', severity: 'error' });
+  }
+  if (!Number.isFinite(maxAllowanceUsd) || maxAllowanceUsd < 0) {
+    violations.push({ code: 'invalid_allowance_cap', message: 'maxAllowanceUsd must be a finite, nonnegative USD value', severity: 'error' });
+  }
   if (amountUsd > maxAllowanceUsd) {
     violations.push({ code: 'allowance_exceeds_max', message: `allowance ${amountUsd} exceeds maxAllowanceUsd ${maxAllowanceUsd}`, severity: 'error' });
   }

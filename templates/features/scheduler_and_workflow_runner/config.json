@@ -1,7 +1,7 @@
 {
   "name": "scheduler_and_workflow_runner",
-  "displayName": "Scheduler and Workflow Runner",
-  "description": "Schedule and execute idempotent multi-step workflows",
+  "displayName": "Scheduler and Workflow Planner",
+  "description": "Plan multi-step workflows and validate schedules without executing actions",
   "version": "1.0.0",
   "category": "automation",
   "dependencies": {},
@@ -28,8 +28,8 @@
   "environment": {
     "required": [],
     "optional": [
-      "PRIVY_APP_ID",
-      "PRIVY_APP_SECRET"
+      "SCHEDULER_INTERVAL_MS",
+      "SCHEDULER_MAX_RUNS"
     ]
   },
   "features": {
@@ -39,6 +39,6 @@
   },
   "examples": [
     "Run scheduler_and_workflow_runner in dry-run mode",
-    "Execute scheduler_and_workflow_runner for EVM and SVM"
+    "Plan scheduler_and_workflow_runner steps for EVM and SVM"
   ]
 }

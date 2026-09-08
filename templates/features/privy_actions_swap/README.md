@@ -1,29 +1,17 @@
 # Privy Actions Swap
 
-## What It Adds
+Install with `saiso add privy_actions_swap`. Invoke `PRIVY_ACTIONS_SWAP`; all operations require `walletId`.
 
-1. Quote token swaps, execute them, and poll action status.
-2. Chain-agnostic action envelope for evm and svm.
-3. Idempotency and request-expiry metadata for mutating workflows.
+| Operation | HTTP endpoint |
+| --- | --- |
+| quote | POST /v1/wallets/{walletId}/swap/quote |
+| execute | POST /v1/wallets/{walletId}/swap |
+| status | GET /v1/wallets/{walletId}/actions/{actionId} |
 
-## Endpoint Surface
+Quote/execute map `network` (CAIP-2), `fromToken`, `toToken`, and `amount` (base units) to `source.caip2`, `source.asset_address`, `destination.asset_address`, `base_amount`, and `amount_type: exact_input`. `payload` can supply the provider body fields directly, including source/destination objects and amount type.
 
-1. wallets/swap/tokens
-2. wallets/swap/quote
-3. wallets/actions/get
+Supply `authorizationSignature` when the wallet's owner requires authorization. It must sign the exact request body, URL, and applicable headers; supply matching `expiresAt` and `idempotencyKey`. This feature does not generate owner signatures. Execution can move assets.
 
-## Usage
+Results return the provider response in `data.result`; accepted asynchronous actions are not proof of settlement. Use `status` with both wallet and action IDs. Mutations are not automatically retried.
 
-1. Install with `saiso add privy_actions_swap`.
-2. Invoke action `PRIVY_ACTIONS_SWAP` with an operation (`quote`, `execute`, or `status`) and swap context.
-3. Requires `PRIVY_APP_ID` and `PRIVY_APP_SECRET`; execution can move real assets when configured with live credentials.
-
-## Output Contract
-
-1. success
-2. operation
-3. chainFamily
-4. requestId
-5. data
-6. meta.idempotencyKey
-7. meta.expiresAt
+References: [Quotes](https://docs.privy.io/wallets/actions/swap/get-quote), [Execution](https://docs.privy.io/wallets/actions/swap/execute), [Action status](https://docs.privy.io/wallets/actions/status).
